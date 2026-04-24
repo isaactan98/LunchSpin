@@ -14,15 +14,16 @@
       <FilterPanel />
     </div>
 
-    <!-- Pool preview -->
+    <!-- Pool info -->
     <div class="px-4 py-3 border-t border-slate-800">
-      <p class="text-xs text-slate-500 text-center">
-        <span v-if="poolCount > 0">
-          {{ poolCount }} place{{ poolCount !== 1 ? 's' : '' }} match your filters
-        </span>
-        <span v-else class="text-amber-400">
-          No places match — try relaxing your filters
-        </span>
+      <p v-if="poolCount === 0" class="text-xs text-amber-400 text-center">
+        No places match — try relaxing your filters
+      </p>
+      <p v-else-if="poolCount <= 8" class="text-xs text-slate-500 text-center">
+        {{ poolCount }} place{{ poolCount !== 1 ? 's' : '' }} in the bracket
+      </p>
+      <p v-else class="text-xs text-slate-500 text-center">
+        {{ poolCount }} places match · picking 8 at random to battle
       </p>
     </div>
 
@@ -38,7 +39,7 @@
         :disabled="poolCount === 0"
         @click="startDeciding"
       >
-        {{ poolCount === 1 ? 'Pick this one!' : "Let's Spin" }}
+        {{ poolCount === 1 ? 'Only one match — pick it!' : "Let's Spin" }}
       </button>
     </div>
   </div>
@@ -56,23 +57,21 @@ const { getRecentlyVisited } = useVisitHistory()
 
 const DAYS_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const todayDisplay = computed(() => {
-  const d = new Date()
-  return DAYS_LONG[d.getDay()]
-})
+const todayDisplay = computed(() => DAYS_LONG[new Date().getDay()])
 
 const poolCount = computed(() => {
   const recentlyVisited = getRecentlyVisited()
-  const filters = sessionStore.filters
+  const { meal, areas, cuisines, priceRanges, tags, excludeRecentlyVisited } = sessionStore.filters
   const today = sessionStore.todayDayName
 
   return restaurantsStore.visible.filter((r) => {
-    if (!r.meal.includes(filters.meal)) return false
+    if (!r.meal.includes(meal)) return false
     if (!r.open_days.includes(today)) return false
-    if (!filters.priceRanges.includes(r.price_range)) return false
-    if (filters.cuisines.length > 0 && !r.cuisine.some((c) => filters.cuisines.includes(c))) return false
-    if (filters.tags.length > 0 && !r.tags.some((t) => filters.tags.includes(t))) return false
-    if (filters.excludeRecentlyVisited && recentlyVisited.includes(r.id)) return false
+    if (!priceRanges.includes(r.price_range)) return false
+    if (areas.length > 0 && !areas.includes(r.area)) return false
+    if (cuisines.length > 0 && !r.cuisine.some((c) => cuisines.includes(c))) return false
+    if (tags.length > 0 && !r.tags.some((t) => tags.includes(t))) return false
+    if (excludeRecentlyVisited && recentlyVisited.includes(r.id)) return false
     if (sessionStore.todayExclusions.includes(r.id)) return false
     return true
   }).length

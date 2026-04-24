@@ -20,6 +20,36 @@
       </div>
     </div>
 
+    <!-- Location -->
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Location</h3>
+        <button
+          v-if="filters.areas.length > 0"
+          class="text-xs text-orange-400 hover:text-orange-300"
+          @click="sessionStore.setFilters({ areas: [] })"
+        >
+          Clear
+        </button>
+        <span v-else class="text-xs text-slate-600">All areas</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="area in areas"
+          :key="area"
+          class="px-3 py-1.5 rounded-full text-xs font-medium transition-all border"
+          :class="
+            filters.areas.includes(area)
+              ? 'bg-sky-500 border-sky-500 text-white'
+              : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+          "
+          @click="toggleArea(area)"
+        >
+          {{ area }}
+        </button>
+      </div>
+    </div>
+
     <!-- Price Range -->
     <div>
       <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Price Range</h3>
@@ -127,6 +157,7 @@ const restaurantsStore = useRestaurantsStore()
 
 const filters = computed(() => sessionStore.filters)
 const cuisines = computed(() => restaurantsStore.allCuisines)
+const areas = computed(() => restaurantsStore.allAreas)
 
 const mealOptions = [
   { value: 'lunch' as const, label: '☀️ Lunch' },
@@ -149,6 +180,14 @@ function setMeal(meal: 'lunch' | 'dinner') {
   sessionStore.setFilters({ meal })
 }
 
+function toggleArea(area: string) {
+  const current = [...filters.value.areas]
+  const idx = current.indexOf(area)
+  if (idx === -1) current.push(area)
+  else current.splice(idx, 1)
+  sessionStore.setFilters({ areas: current })
+}
+
 function togglePrice(price: 1 | 2 | 3) {
   const current = [...filters.value.priceRanges]
   const idx = current.indexOf(price)
@@ -163,11 +202,8 @@ function togglePrice(price: 1 | 2 | 3) {
 function toggleCuisine(cuisine: string) {
   const current = [...filters.value.cuisines]
   const idx = current.indexOf(cuisine)
-  if (idx === -1) {
-    current.push(cuisine)
-  } else {
-    current.splice(idx, 1)
-  }
+  if (idx === -1) current.push(cuisine)
+  else current.splice(idx, 1)
   sessionStore.setFilters({ cuisines: current })
 }
 
@@ -182,11 +218,8 @@ function toggleAllCuisines() {
 function toggleTag(tag: string) {
   const current = [...filters.value.tags]
   const idx = current.indexOf(tag)
-  if (idx === -1) {
-    current.push(tag)
-  } else {
-    current.splice(idx, 1)
-  }
+  if (idx === -1) current.push(tag)
+  else current.splice(idx, 1)
   sessionStore.setFilters({ tags: current })
 }
 

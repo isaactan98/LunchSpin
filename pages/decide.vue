@@ -74,10 +74,8 @@ const remainingCount = computed(() => {
   return round ? round.length : 0
 })
 
-const totalMatchups = computed(() => {
-  if (sessionStore.pool.length <= 1) return 1
-  return Math.ceil(Math.log2(sessionStore.pool.length))
-})
+// pool is already capped at 8, so total picks = pool.length - 1
+const totalMatchups = computed(() => Math.max(1, sessionStore.pool.length - 1))
 
 const completedMatchups = ref(0)
 

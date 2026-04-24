@@ -5,8 +5,12 @@ type MealType = 'lunch' | 'dinner'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+// Max restaurants shown in a bracket round — keeps clicks under control
+const BRACKET_SAMPLE_SIZE = 8
+
 export interface FilterState {
   meal: MealType
+  areas: string[]
   cuisines: string[]
   priceRanges: (1 | 2 | 3)[]
   tags: string[]
@@ -16,6 +20,7 @@ export interface FilterState {
 interface SessionState {
   filters: FilterState
   pool: Restaurant[]
+  poolSize: number // total matching before sampling
   bracket: Restaurant[][]
   currentMatchup: [Restaurant, Restaurant] | null
   winner: Restaurant | null
@@ -32,12 +37,14 @@ export const useSessionStore = defineStore('session', {
   state: (): SessionState => ({
     filters: {
       meal: detectMeal(),
+      areas: [],
       cuisines: [],
       priceRanges: [1, 2, 3],
       tags: [],
       excludeRecentlyVisited: true,
     },
     pool: [],
+    poolSize: 0,
     bracket: [],
     currentMatchup: null,
     winner: null,
@@ -56,17 +63,15 @@ export const useSessionStore = defineStore('session', {
       this.filters = { ...this.filters, ...partial }
     },
 
-    buildPool(
-      restaurants: Restaurant[],
-      recentlyVisited: string[],
-    ) {
-      const { meal, cuisines, priceRanges, tags, excludeRecentlyVisited } = this.filters
+    buildPool(restaurants: Restaurant[], recentlyVisited: string[]) {
+      const { meal, areas, cuisines, priceRanges, tags, excludeRecentlyVisited } = this.filters
       const today = DAYS[new Date().getDay()]
 
-      let pool = restaurants.filter((r) => {
+      let filtered = restaurants.filter((r) => {
         if (!r.meal.includes(meal)) return false
         if (!r.open_days.includes(today)) return false
         if (!priceRanges.includes(r.price_range)) return false
+        if (areas.length > 0 && !areas.includes(r.area)) return false
         if (cuisines.length > 0 && !r.cuisine.some((c) => cuisines.includes(c))) return false
         if (tags.length > 0 && !r.tags.some((t) => tags.includes(t))) return false
         if (excludeRecentlyVisited && recentlyVisited.includes(r.id)) return false
@@ -74,9 +79,12 @@ export const useSessionStore = defineStore('session', {
         return true
       })
 
-      // Shuffle the pool
-      pool = pool.sort(() => Math.random() - 0.5)
-      this.pool = pool
+      // Shuffle
+      filtered = filtered.sort(() => Math.random() - 0.5)
+
+      this.poolSize = filtered.length
+      // Cap to BRACKET_SAMPLE_SIZE so clicks are bounded regardless of list size
+      this.pool = filtered.slice(0, BRACKET_SAMPLE_SIZE)
     },
 
     startBracket() {
@@ -94,7 +102,6 @@ export const useSessionStore = defineStore('session', {
         return
       }
 
-      // Split pool into bracket rounds
       this.bracket = [this.pool.slice()]
       this.advanceToNextMatchup()
     },
@@ -108,15 +115,12 @@ export const useSessionStore = defineStore('session', {
         this.currentMatchup = null
         return
       }
-      // Pick the first two in the current round
       this.currentMatchup = [currentRound[0], currentRound[1]]
     },
 
     pick(winner: Restaurant) {
       const currentRound = this.bracket[this.round]
-      // Remove the two that were matched
       const remaining = currentRound.slice(2)
-      // Winner advances to next round
       const nextRoundCandidates = [winner, ...remaining]
 
       if (nextRoundCandidates.length === 1) {
@@ -126,14 +130,12 @@ export const useSessionStore = defineStore('session', {
       }
 
       if (nextRoundCandidates.length === 2) {
-        // Start next round with these two
         this.round++
         this.bracket.push(nextRoundCandidates)
         this.currentMatchup = [nextRoundCandidates[0], nextRoundCandidates[1]]
         return
       }
 
-      // Update current round with remaining + winner advancing next iteration
       this.bracket[this.round] = nextRoundCandidates
       this.advanceToNextMatchup()
     },
@@ -148,12 +150,14 @@ export const useSessionStore = defineStore('session', {
       const meal = detectMeal()
       this.filters = {
         meal,
+        areas: [],
         cuisines: [],
         priceRanges: [1, 2, 3],
         tags: [],
         excludeRecentlyVisited: true,
       }
       this.pool = []
+      this.poolSize = 0
       this.bracket = []
       this.currentMatchup = null
       this.winner = null
