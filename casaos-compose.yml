@@ -1,0 +1,7 @@
+services:
+  lunchspin:
+    image: ghcr.io/GITHUB_USERNAME/lunchspin:latest
+    container_name: lunchspin
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
