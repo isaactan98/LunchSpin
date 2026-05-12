@@ -23,6 +23,10 @@ interface RestaurantsState {
   loaded: boolean
   activeOverrides: Record<string, boolean>
   lastPickedId: string | null
+  /** Optional price filters — empty = all */
+  priceFilters: (1 | 2 | 3)[]
+  /** Optional cuisine filters — empty = all */
+  cuisineFilters: string[]
 }
 
 function detectMeal(): MealType {
@@ -39,6 +43,8 @@ export const useRestaurantsStore = defineStore('restaurants', {
     loaded: false,
     activeOverrides: {},
     lastPickedId: null,
+    priceFilters: [],
+    cuisineFilters: [],
   }),
 
   getters: {
@@ -56,26 +62,46 @@ export const useRestaurantsStore = defineStore('restaurants', {
       return Array.from(set).sort()
     },
 
-    /** Count of visible+open restaurants per area for the current meal/day */
-    areaCounts(): Record<string, number> {
-      const meal = detectMeal()
-      const today = todayName()
-      const counts: Record<string, number> = {}
-      this.visible.forEach((r) => {
-        if (!r.meal.includes(meal)) return
-        if (!r.open_days.includes(today)) return
-        counts[r.area] = (counts[r.area] ?? 0) + 1
-      })
-      return counts
+    /** All cuisines that exist in the dataset, sorted */
+    allCuisines(): string[] {
+      const set = new Set<string>()
+      this.visible.forEach((r) => r.cuisine.forEach((c) => set.add(c)))
+      return Array.from(set).sort()
     },
 
-    /** Currently-available restaurants given meal time + open today */
+    /** Returns true if any optional filter is currently applied */
+    hasActiveFilters(state): boolean {
+      return state.priceFilters.length > 0 || state.cuisineFilters.length > 0
+    },
+
+    /**
+     * Restaurants available right now, with all filters applied:
+     * - meal (auto-detected)
+     * - open today
+     * - active overrides
+     * - optional price filters
+     * - optional cuisine filters
+     */
     availableNow(): Restaurant[] {
       const meal = detectMeal()
       const today = todayName()
-      return this.visible.filter(
-        (r) => r.meal.includes(meal) && r.open_days.includes(today),
-      )
+      const { priceFilters, cuisineFilters } = this
+      return this.visible.filter((r) => {
+        if (!r.meal.includes(meal)) return false
+        if (!r.open_days.includes(today)) return false
+        if (priceFilters.length > 0 && !priceFilters.includes(r.price_range)) return false
+        if (cuisineFilters.length > 0 && !r.cuisine.some((c) => cuisineFilters.includes(c))) return false
+        return true
+      })
+    },
+
+    /** Count of currently-available restaurants per area (respects filters) */
+    areaCounts(): Record<string, number> {
+      const counts: Record<string, number> = {}
+      this.availableNow.forEach((r) => {
+        counts[r.area] = (counts[r.area] ?? 0) + 1
+      })
+      return counts
     },
   },
 
@@ -114,9 +140,27 @@ export const useRestaurantsStore = defineStore('restaurants', {
       return override !== undefined ? override : restaurant.active
     },
 
+    togglePriceFilter(price: 1 | 2 | 3) {
+      const idx = this.priceFilters.indexOf(price)
+      if (idx === -1) this.priceFilters.push(price)
+      else this.priceFilters.splice(idx, 1)
+    },
+
+    toggleCuisineFilter(cuisine: string) {
+      const idx = this.cuisineFilters.indexOf(cuisine)
+      if (idx === -1) this.cuisineFilters.push(cuisine)
+      else this.cuisineFilters.splice(idx, 1)
+    },
+
+    clearFilters() {
+      this.priceFilters = []
+      this.cuisineFilters = []
+    },
+
     /**
      * Pick a random restaurant. If `area` is provided, restricts to that area.
      * Avoids returning the same restaurant as `lastPickedId` if possible.
+     * Respects price + cuisine filters via availableNow.
      */
     pickRandom(area?: string): Restaurant | null {
       let pool = this.availableNow
@@ -128,7 +172,6 @@ export const useRestaurantsStore = defineStore('restaurants', {
         return pool[0]
       }
 
-      // Try to avoid repeating the last pick
       const filtered = pool.filter((r) => r.id !== this.lastPickedId)
       const choices = filtered.length > 0 ? filtered : pool
       const pick = choices[Math.floor(Math.random() * choices.length)]
