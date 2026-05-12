@@ -4,6 +4,7 @@ export interface Restaurant {
   id: string
   name: string
   area: string
+  mall?: string
   cuisine: string[]
   meal: ('lunch' | 'dinner')[]
   price_range: 1 | 2 | 3

@@ -36,7 +36,8 @@
             </h2>
             <p class="mt-1 text-sm text-slate-400 flex items-center gap-1">
               <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
-              <span>{{ restaurant.area }}</span>
+              <span v-if="restaurant.mall">{{ restaurant.mall }} · {{ restaurant.area }}</span>
+              <span v-else>{{ restaurant.area }}</span>
             </p>
           </div>
           <div class="text-orange-400 text-xl font-bold shrink-0">
