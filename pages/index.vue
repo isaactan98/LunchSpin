@@ -1,86 +1,120 @@
 <template>
-  <div class="flex flex-col min-h-full">
+  <div class="flex flex-col min-h-full bg-slate-950 text-white">
     <!-- Header -->
-    <header class="px-4 pt-8 pb-4">
-      <div class="flex items-baseline gap-2">
-        <h1 class="text-2xl font-bold text-white">LunchSpin</h1>
-        <span class="text-slate-400 text-sm">{{ todayDisplay }}</span>
+    <header class="px-4 pt-8 pb-6 flex items-center justify-between">
+      <h1 class="text-3xl font-bold text-white tracking-tight">LunchSpin</h1>
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-200"
+      >
+        <span>{{ mealIcon }}</span>
+        <span class="capitalize">{{ meal }}</span>
       </div>
-      <p class="text-slate-400 text-sm mt-1">What are we eating today?</p>
     </header>
 
-    <!-- Filters -->
-    <div class="flex-1 overflow-y-auto">
-      <FilterPanel />
-    </div>
-
-    <!-- Pool info -->
-    <div class="px-4 py-3 border-t border-slate-800">
-      <p v-if="poolCount === 0" class="text-xs text-amber-400 text-center">
-        No places match — try relaxing your filters
-      </p>
-      <p v-else-if="poolCount <= 8" class="text-xs text-slate-500 text-center">
-        {{ poolCount }} place{{ poolCount !== 1 ? 's' : '' }} in the bracket
-      </p>
-      <p v-else class="text-xs text-slate-500 text-center">
-        {{ poolCount }} places match · picking 8 at random to battle
+    <!-- Empty state -->
+    <div
+      v-if="isEmpty"
+      class="flex-1 flex flex-col items-center justify-center px-6 text-center"
+    >
+      <UIcon
+        name="i-heroicons-moon"
+        class="w-12 h-12 text-slate-600 mb-4"
+      />
+      <p class="text-slate-300 font-medium">No places open right now</p>
+      <p class="text-slate-500 text-sm mt-2">
+        Try switching off Skip Recent in Manage
       </p>
     </div>
 
-    <!-- CTA -->
-    <div class="p-4 pb-6">
-      <button
-        class="w-full py-4 rounded-2xl font-bold text-lg transition-all"
-        :class="
-          poolCount > 0
-            ? 'bg-orange-500 hover:bg-orange-400 text-white active:scale-95'
-            : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-        "
-        :disabled="poolCount === 0"
-        @click="startDeciding"
-      >
-        {{ poolCount === 1 ? 'Only one match — pick it!' : "Let's Spin" }}
-      </button>
-    </div>
+    <template v-else>
+      <!-- Hero CTA -->
+      <div class="px-4">
+        <button
+          class="w-full py-5 rounded-3xl font-bold text-xl text-white shadow-lg shadow-orange-500/20 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 transition-all active:scale-95"
+          @click="onSurpriseMe"
+        >
+          <span class="inline-flex items-center gap-2">
+            <span class="text-2xl">🎲</span>
+            <span>Surprise Me</span>
+          </span>
+        </button>
+        <p
+          v-if="errorMessage"
+          class="mt-3 text-center text-sm text-amber-400"
+        >
+          {{ errorMessage }}
+        </p>
+      </div>
+
+      <!-- Location grid -->
+      <section class="px-4 mt-8 pb-6">
+        <h2 class="text-sm font-medium text-slate-400 mb-3">Or pick a place:</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            v-for="area in sortedAreas"
+            :key="area.name"
+            class="flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 hover:bg-slate-800/80 transition-all active:scale-95 text-left"
+            @click="onPickArea(area.name)"
+          >
+            <div class="flex items-center gap-1.5 text-orange-400">
+              <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
+            </div>
+            <div class="font-bold text-white leading-tight">{{ area.name }}</div>
+            <div class="text-xs text-slate-400">
+              {{ area.count }} {{ area.count === 1 ? 'place' : 'places' }}
+            </div>
+          </button>
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useSessionStore } from '~/stores/session'
 import { useRestaurantsStore } from '~/stores/restaurants'
-import { useVisitHistory } from '~/composables/useVisitHistory'
 
 const router = useRouter()
-const sessionStore = useSessionStore()
 const restaurantsStore = useRestaurantsStore()
-const { getRecentlyVisited } = useVisitHistory()
 
-const DAYS_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const errorMessage = ref<string>('')
 
-const todayDisplay = computed(() => DAYS_LONG[new Date().getDay()])
+const meal = computed(() => restaurantsStore.currentMeal())
+const mealIcon = computed(() => (meal.value === 'lunch' ? '☀️' : '🌙'))
 
-const poolCount = computed(() => {
-  const recentlyVisited = getRecentlyVisited()
-  const { meal, areas, cuisines, priceRanges, tags, excludeRecentlyVisited } = sessionStore.filters
-  const today = sessionStore.todayDayName
+const isEmpty = computed(() => restaurantsStore.availableNow.length === 0)
 
-  return restaurantsStore.visible.filter((r) => {
-    if (!r.meal.includes(meal)) return false
-    if (!r.open_days.includes(today)) return false
-    if (!priceRanges.includes(r.price_range)) return false
-    if (areas.length > 0 && !areas.includes(r.area)) return false
-    if (cuisines.length > 0 && !r.cuisine.some((c) => cuisines.includes(c))) return false
-    if (tags.length > 0 && !r.tags.some((t) => tags.includes(t))) return false
-    if (excludeRecentlyVisited && recentlyVisited.includes(r.id)) return false
-    if (sessionStore.todayExclusions.includes(r.id)) return false
-    return true
-  }).length
+interface AreaEntry {
+  name: string
+  count: number
+}
+
+const sortedAreas = computed<AreaEntry[]>(() => {
+  const counts = restaurantsStore.areaCounts
+  return Object.entries(counts)
+    .filter(([, count]) => count > 0)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
 })
 
-function startDeciding() {
-  const recentlyVisited = getRecentlyVisited()
-  sessionStore.buildPool(restaurantsStore.visible, recentlyVisited)
-  sessionStore.startBracket()
-  router.push('/decide')
+function onSurpriseMe(): void {
+  errorMessage.value = ''
+  const pick = restaurantsStore.pickRandom()
+  if (!pick) {
+    errorMessage.value = 'Nothing open right now'
+    return
+  }
+  router.push('/result')
+}
+
+function onPickArea(area: string): void {
+  errorMessage.value = ''
+  const pick = restaurantsStore.pickRandom(area)
+  if (!pick) {
+    errorMessage.value = `Nothing open in ${area} right now`
+    return
+  }
+  router.push({ path: '/result', query: { area } })
 }
 </script>
+
+<style scoped></style>

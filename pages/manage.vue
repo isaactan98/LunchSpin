@@ -1,14 +1,12 @@
 <template>
-  <div class="flex flex-col min-h-full">
+  <div class="flex flex-col min-h-full bg-slate-950">
     <!-- Header -->
-    <header class="px-4 pt-8 pb-4">
-      <h1 class="text-2xl font-bold text-white">Manage List</h1>
-      <p class="text-slate-400 text-sm mt-1">Toggle restaurants on or off</p>
-    </header>
+    <header class="sticky top-0 z-20 bg-slate-950/80 backdrop-blur px-4 pt-8 pb-4">
+      <h1 class="text-2xl font-bold text-white">Manage</h1>
+      <p class="text-slate-400 text-sm mt-1">Toggle restaurants on/off</p>
 
-    <!-- Search -->
-    <div class="px-4 pb-4">
-      <div class="relative">
+      <!-- Search -->
+      <div class="relative mt-4">
         <UIcon
           name="i-heroicons-magnifying-glass"
           class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
@@ -18,133 +16,175 @@
           type="text"
           placeholder="Search by name or area..."
           class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
-        />
-      </div>
-    </div>
-
-    <!-- Stats bar -->
-    <div class="px-4 pb-3 flex gap-4 text-xs text-slate-500">
-      <span>{{ activeCount }} active</span>
-      <span>{{ disabledCount }} hidden</span>
-    </div>
-
-    <!-- Restaurant list -->
-    <div class="flex-1 px-4 pb-6 overflow-y-auto space-y-3">
-      <!-- Empty search result -->
-      <div v-if="filtered.length === 0" class="flex flex-col items-center justify-center py-16 text-center gap-3">
-        <div class="text-4xl">🔍</div>
-        <p class="text-white font-semibold">No restaurants found</p>
-        <p class="text-slate-400 text-sm">Try a different search term</p>
-        <button
-          class="text-orange-400 text-sm hover:text-orange-300"
-          @click="search = ''"
         >
-          Clear search
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="mt-3 flex gap-2">
+        <button
+          v-for="tab in tabs"
+          :key="tab.value"
+          class="flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border"
+          :class="
+            filterMode === tab.value
+              ? 'bg-orange-500 text-white border-orange-500'
+              : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+          "
+          @click="filterMode = tab.value"
+        >
+          {{ tab.label }}
         </button>
       </div>
 
-      <!-- Restaurant cards -->
+      <!-- Stats line -->
+      <p class="mt-3 text-xs text-slate-500">
+        {{ activeCount }} active · {{ hiddenCount }} hidden
+      </p>
+    </header>
+
+    <!-- Restaurant list grouped by area -->
+    <div class="flex-1 px-4 pb-8">
+      <!-- Empty state -->
       <div
-        v-for="restaurant in filtered"
-        :key="restaurant.id"
-        class="rounded-xl border p-4 transition-all"
-        :class="
-          isActive(restaurant.id)
-            ? 'bg-slate-800 border-slate-700'
-            : 'bg-slate-900 border-slate-800 opacity-60'
-        "
+        v-if="grouped.length === 0"
+        class="flex flex-col items-center justify-center py-20 text-center gap-3"
       >
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <h3 class="font-semibold text-sm text-white truncate">{{ restaurant.name }}</h3>
-              <!-- Recently visited badge -->
-              <span
-                v-if="isRecentlyVisited(restaurant.id)"
-                class="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium"
-              >
-                Recent
-              </span>
-            </div>
-            <p class="text-xs text-slate-400 mt-0.5">
-              {{ restaurant.area }} · {{ restaurant.cuisine.slice(0, 2).join(', ') }} · {{ '$'.repeat(restaurant.price_range) }}
-            </p>
-            <!-- Last visited -->
-            <p v-if="lastVisited(restaurant.id)" class="text-xs text-slate-500 mt-1">
-              Last visited: {{ formatDate(lastVisited(restaurant.id)!) }}
-            </p>
-          </div>
-
-          <!-- Toggle -->
-          <button
-            class="shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-            :class="isActive(restaurant.id) ? 'bg-orange-500' : 'bg-slate-700'"
-            :aria-label="`Toggle ${restaurant.name}`"
-            @click="toggleActive(restaurant.id)"
-          >
-            <span
-              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-              :class="isActive(restaurant.id) ? 'translate-x-6' : 'translate-x-1'"
-            />
-          </button>
-        </div>
-
-        <!-- Tags row -->
-        <div class="flex flex-wrap gap-1 mt-2.5">
-          <span
-            v-for="tag in restaurant.tags"
-            :key="tag"
-            class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-400"
-          >
-            {{ tag }}
-          </span>
-          <span
-            v-if="restaurant.meal.includes('lunch')"
-            class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400"
-          >
-            lunch
-          </span>
-          <span
-            v-if="restaurant.meal.includes('dinner')"
-            class="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400"
-          >
-            dinner
-          </span>
-        </div>
+        <UIcon name="i-heroicons-magnifying-glass" class="w-10 h-10 text-slate-600" />
+        <p class="text-white font-semibold">No restaurants found</p>
+        <p class="text-slate-400 text-sm">Try a different search or filter</p>
+        <button
+          class="mt-2 text-orange-400 text-sm hover:text-orange-300"
+          @click="clearFilters"
+        >
+          Clear filters
+        </button>
       </div>
+
+      <!-- Grouped sections -->
+      <section
+        v-for="group in grouped"
+        :key="group.area"
+        class="mb-4"
+      >
+        <!-- Sticky area header -->
+        <div
+          class="sticky top-[180px] z-10 -mx-4 px-4 py-2 bg-slate-950 border-b border-slate-800"
+        >
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-300">
+            {{ group.area }}
+            <span class="text-slate-500 font-normal normal-case tracking-normal">· {{ group.items.length }}</span>
+          </h2>
+        </div>
+
+        <!-- Cards -->
+        <div class="space-y-3 pt-3">
+          <article
+            v-for="restaurant in group.items"
+            :key="restaurant.id"
+            class="relative rounded-xl border p-4 transition-all"
+            :class="
+              isActive(restaurant.id)
+                ? 'bg-slate-800 border-slate-700'
+                : 'bg-slate-900 border-slate-800 opacity-50'
+            "
+          >
+            <!-- Recent badge -->
+            <span
+              v-if="isRecentlyVisited(restaurant.id)"
+              class="absolute top-3 right-16 text-[10px] px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium"
+            >
+              Recent
+            </span>
+
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0 pr-2">
+                <h3 class="font-bold text-white truncate">{{ restaurant.name }}</h3>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  {{ restaurant.cuisine.slice(0, 2).join(', ') }} · {{ '$'.repeat(restaurant.price_range) }}
+                </p>
+
+                <!-- Tags (limit to 3) -->
+                <div v-if="restaurant.tags.length" class="flex flex-wrap gap-1 mt-2">
+                  <span
+                    v-for="tag in restaurant.tags.slice(0, 3)"
+                    :key="tag"
+                    class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+
+                <!-- Last visited -->
+                <p
+                  v-if="lastVisited(restaurant.id)"
+                  class="text-xs text-slate-500 mt-2"
+                >
+                  Last visited: {{ formatDate(lastVisited(restaurant.id)!) }}
+                </p>
+              </div>
+
+              <!-- Toggle -->
+              <button
+                class="shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-0.5"
+                :class="isActive(restaurant.id) ? 'bg-orange-500' : 'bg-slate-700'"
+                :aria-label="`Toggle ${restaurant.name}`"
+                :aria-pressed="isActive(restaurant.id)"
+                @click="toggleActive(restaurant.id)"
+              >
+                <span
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  :class="isActive(restaurant.id) ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { useRestaurantsStore } from '~/stores/restaurants'
 import { useVisitHistory } from '~/composables/useVisitHistory'
 
+type FilterMode = 'all' | 'active' | 'hidden'
+
+interface Restaurant {
+  id: string
+  name: string
+  area: string
+  cuisine: string[]
+  meal: ('lunch' | 'dinner')[]
+  price_range: 1 | 2 | 3
+  open_days: string[]
+  tags: string[]
+  active: boolean
+  notes?: string
+}
+
+interface AreaGroup {
+  area: string
+  items: Restaurant[]
+}
+
 const restaurantsStore = useRestaurantsStore()
-const { getLastVisited, isRecentlyVisited: checkRecent, getAllVisits } = useVisitHistory()
+const { getAllVisits, isRecentlyVisited: checkRecent } = useVisitHistory()
 
 const search = ref('')
+const filterMode = ref<FilterMode>('all')
 const allVisits = ref<Record<string, string>>({})
+
+const tabs: { value: FilterMode, label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'hidden', label: 'Hidden' },
+]
 
 onMounted(() => {
   allVisits.value = getAllVisits()
 })
-
-const filtered = computed(() => {
-  const q = search.value.toLowerCase().trim()
-  return restaurantsStore.all.filter((r) => {
-    if (!q) return true
-    return r.name.toLowerCase().includes(q) || r.area.toLowerCase().includes(q)
-  })
-})
-
-const activeCount = computed(() =>
-  restaurantsStore.all.filter((r) => restaurantsStore.isActive(r.id)).length
-)
-
-const disabledCount = computed(() =>
-  restaurantsStore.all.length - activeCount.value
-)
 
 function isActive(id: string): boolean {
   return restaurantsStore.isActive(id)
@@ -163,8 +203,52 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function toggleActive(id: string) {
+function toggleActive(id: string): void {
   const current = isActive(id)
   restaurantsStore.setActiveOverride(id, !current)
 }
+
+function clearFilters(): void {
+  search.value = ''
+  filterMode.value = 'all'
+}
+
+const activeCount = computed(() =>
+  restaurantsStore.all.filter(r => isActive(r.id)).length,
+)
+
+const hiddenCount = computed(() =>
+  restaurantsStore.all.length - activeCount.value,
+)
+
+const filtered = computed<Restaurant[]>(() => {
+  const q = search.value.toLowerCase().trim()
+  return (restaurantsStore.all as Restaurant[]).filter((r) => {
+    // Filter mode
+    const active = isActive(r.id)
+    if (filterMode.value === 'active' && !active) return false
+    if (filterMode.value === 'hidden' && active) return false
+
+    // Search
+    if (!q) return true
+    return (
+      r.name.toLowerCase().includes(q)
+      || r.area.toLowerCase().includes(q)
+    )
+  })
+})
+
+const grouped = computed<AreaGroup[]>(() => {
+  const map = new Map<string, Restaurant[]>()
+  for (const r of filtered.value) {
+    if (!map.has(r.area)) map.set(r.area, [])
+    map.get(r.area)!.push(r)
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([area, items]) => ({
+      area,
+      items: items.slice().sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+})
 </script>
