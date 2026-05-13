@@ -116,6 +116,86 @@
             </div>
           </div>
 
+          <!-- With -->
+          <div>
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">With</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="opt in withOptions"
+                :key="opt.value"
+                class="px-3 py-2 rounded-full text-xs font-medium border transition-all"
+                :class="
+                  store.withFilters.includes(opt.value)
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                "
+                @click="store.toggleWithFilter(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Service -->
+          <div>
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Service</p>
+            <div class="flex gap-2">
+              <button
+                v-for="opt in serviceOptions"
+                :key="opt.value"
+                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+                :class="
+                  store.serviceFilters.includes(opt.value)
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                "
+                @click="store.toggleServiceFilter(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Ordering -->
+          <div>
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Ordering</p>
+            <div class="flex gap-2">
+              <button
+                v-for="opt in orderingOptions"
+                :key="opt.value"
+                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+                :class="
+                  store.orderingFilters.includes(opt.value)
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                "
+                @click="store.toggleOrderingFilter(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Payment -->
+          <div>
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Payment</p>
+            <div class="flex gap-2">
+              <button
+                v-for="opt in payOptions"
+                :key="opt.value"
+                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+                :class="
+                  store.payFilters.includes(opt.value)
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                "
+                @click="store.togglePayFilter(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
           <!-- Cuisine -->
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -210,9 +290,56 @@ const priceOptions = [
   { value: 3 as const, symbol: '$$$', label: 'Pricey' },
 ]
 
-const activeFilterCount = computed(
-  () => store.priceFilters.length + store.cuisineFilters.length,
-)
+const withOptions = [
+  { value: 'solo' as const, label: 'Solo' },
+  { value: 'date' as const, label: 'Date' },
+  { value: 'colleague' as const, label: 'Colleague' },
+  { value: 'family' as const, label: 'Family' },
+]
+
+const serviceOptions = [
+  { value: 'dine-in' as const, label: 'Dine-in' },
+  { value: 'takeaway' as const, label: 'Takeaway' },
+]
+
+const orderingOptions = [
+  { value: 'individual' as const, label: 'Individual' },
+  { value: 'shared' as const, label: 'Shared (叫料吃)' },
+]
+
+const payOptions = [
+  { value: 'split' as const, label: 'Split' },
+  { value: 'treat' as const, label: 'Treat' },
+]
+
+const withLabelMap: Record<string, string> = {
+  solo: 'Solo',
+  date: 'Date',
+  colleague: 'Colleague',
+  family: 'Family',
+}
+const serviceLabelMap: Record<string, string> = {
+  'dine-in': 'Dine-in',
+  'takeaway': 'Takeaway',
+}
+const orderingLabelMap: Record<string, string> = {
+  individual: 'Individual',
+  shared: 'Shared',
+}
+const payLabelMap: Record<string, string> = {
+  split: 'Split',
+  treat: 'Treat',
+}
+
+const activeFilterCount = computed(() => {
+  let n = store.priceFilters.length + store.cuisineFilters.length
+  n += store.withFilters.length
+  n += store.orderingFilters.length
+  n += store.payFilters.length
+  // Service counts only if not the default-both state
+  if (store.serviceFilters.length !== 2) n += store.serviceFilters.length
+  return n
+})
 
 const totalAvailable = computed(() => store.availableNow.length)
 const noVisible = computed(() => store.visible.length === 0)
@@ -227,6 +354,18 @@ const filterSummary = computed(() => {
         .map((p) => '$'.repeat(p))
         .join('/'),
     )
+  }
+  if (store.withFilters.length > 0) {
+    parts.push(store.withFilters.map((w) => withLabelMap[w]).join('/'))
+  }
+  if (store.serviceFilters.length !== 2) {
+    parts.push(store.serviceFilters.map((s) => serviceLabelMap[s]).join('/'))
+  }
+  if (store.orderingFilters.length > 0) {
+    parts.push(store.orderingFilters.map((o) => orderingLabelMap[o]).join('/'))
+  }
+  if (store.payFilters.length > 0) {
+    parts.push(store.payFilters.map((p) => payLabelMap[p]).join('/'))
   }
   if (store.cuisineFilters.length > 0) {
     parts.push(store.cuisineFilters.join(', '))
