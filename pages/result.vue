@@ -1,24 +1,24 @@
 <template>
   <div class="flex flex-col min-h-full bg-slate-950 text-white">
     <!-- Header -->
-    <header class="px-4 pt-6 pb-4 flex items-center gap-3">
+    <header class="px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 flex items-center gap-3">
       <NuxtLink
         to="/"
-        class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 hover:bg-slate-800 transition-all active:scale-95"
+        class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 hover:bg-slate-800 transition-all active:scale-95"
         aria-label="Back"
       >
-        <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 text-slate-200" />
+        <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 text-slate-200" aria-hidden="true" />
       </NuxtLink>
       <h1 class="text-xl font-bold tracking-tight">{{ headerTitle }}</h1>
     </header>
 
     <!-- Scope chip -->
-    <div class="px-4 mb-3">
+    <div v-if="scopeChip" class="px-4 mb-3">
       <span
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300"
       >
-        <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" />
-        <span>from {{ scopeLabel }}</span>
+        <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
+        <span>{{ scopeChip }}</span>
       </span>
     </div>
 
@@ -26,7 +26,8 @@
     <main class="flex-1 px-4 pb-4">
       <div
         v-if="restaurant"
-        class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-lg shadow-black/30"
+        class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-2xl shadow-orange-500/10 ring-1 ring-orange-500/20 transition-opacity duration-200"
+        :class="rerolling ? 'opacity-50' : 'opacity-100'"
       >
         <!-- Name + price -->
         <div class="flex items-start justify-between gap-3">
@@ -35,9 +36,12 @@
               {{ restaurant.name }}
             </h2>
             <p class="mt-1 text-sm text-slate-400 flex items-center gap-1">
-              <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
+              <UIcon name="i-heroicons-map-pin" class="w-4 h-4" aria-hidden="true" />
               <span v-if="restaurant.mall">{{ restaurant.mall }} · {{ restaurant.area }}</span>
               <span v-else>{{ restaurant.area }}</span>
+            </p>
+            <p v-if="lastVisitedLabel" class="mt-1 text-xs text-slate-400">
+              {{ lastVisitedLabel }}
             </p>
           </div>
           <div class="text-orange-400 text-xl font-bold shrink-0">
@@ -59,41 +63,28 @@
           </span>
         </div>
 
-        <!-- Open days -->
-        <div class="mt-5">
-          <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">
-            Open days
-          </p>
-          <div class="flex gap-1.5">
-            <div
-              v-for="(d, i) in dayLetters"
-              :key="i"
-              :class="[
-                'w-8 h-8 flex items-center justify-center rounded-full text-xs font-semibold',
-                isDayOpen(i)
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-slate-900 text-slate-600 border border-slate-700',
-              ]"
-            >
-              {{ d }}
-            </div>
-          </div>
-        </div>
+        <!-- Open days (simplified) -->
+        <p
+          v-if="openDaysLine"
+          class="mt-5 text-xs text-slate-400"
+        >
+          {{ openDaysLine }}
+        </p>
 
         <!-- Meal badges -->
         <div class="mt-5 flex gap-2">
           <span
             v-if="restaurant.meal.includes('lunch')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-amber-300"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200"
           >
-            <UIcon name="i-heroicons-sun" class="w-4 h-4" />
+            <UIcon name="i-heroicons-sun" class="w-4 h-4 text-amber-400" aria-hidden="true" />
             Lunch
           </span>
           <span
             v-if="restaurant.meal.includes('dinner')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-indigo-300"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200"
           >
-            <UIcon name="i-heroicons-moon" class="w-4 h-4" />
+            <UIcon name="i-heroicons-moon" class="w-4 h-4 text-slate-300" aria-hidden="true" />
             Dinner
           </span>
         </div>
@@ -106,7 +97,7 @@
           <span
             v-for="t in restaurant.tags"
             :key="t"
-            class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 text-slate-400 border border-slate-700"
+            class="px-2 py-0.5 rounded-md text-xs font-medium bg-slate-900 text-slate-400 border border-slate-700"
           >
             #{{ t }}
           </span>
@@ -141,8 +132,8 @@
         class="w-full py-3.5 rounded-2xl font-semibold text-base text-slate-100 bg-slate-900 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 inline-flex items-center justify-center gap-2"
         @click="onTryAnother"
       >
-        <UIcon name="i-heroicons-arrow-path" class="w-5 h-5" />
-        Try Another 🔄
+        <UIcon name="i-heroicons-arrow-path" class="w-5 h-5" aria-hidden="true" />
+        Re-roll
       </button>
     </div>
   </div>
@@ -155,9 +146,11 @@ import { useVisitHistory } from '~/composables/useVisitHistory'
 const router = useRouter()
 const route = useRoute()
 const restaurantsStore = useRestaurantsStore()
-const { markVisited } = useVisitHistory()
+const { markVisited, getLastVisited, isRecentlyVisited } = useVisitHistory()
 
 const inlineMessage = ref<string>('')
+const rerolling = ref(false)
+const lastVisitedDate = ref<string | null>(null)
 
 const areaParam = computed<string | undefined>(() => {
   const a = route.query.area
@@ -169,51 +162,133 @@ const restaurant = computed(() =>
   restaurantsStore.all.find(r => r.id === restaurantsStore.lastPickedId) ?? null,
 )
 
-const isLunch = computed(() => new Date().getHours() < 15)
+const headerTitle = computed(() => {
+  const m = restaurantsStore.lastPickedMeal
+  return m === 'dinner' ? "Tonight's pick" : 'Lunch pick'
+})
 
-const headerTitle = computed(() =>
-  isLunch.value ? 'Lunch pick' : "Tonight's pick",
-)
-
-const scopeLabel = computed(() => areaParam.value ?? 'anywhere')
+const scopeChip = computed(() => {
+  const parts: string[] = []
+  if (restaurantsStore.cuisineFilters.length > 0) {
+    parts.push(restaurantsStore.cuisineFilters.join(', '))
+  }
+  if (restaurantsStore.priceFilters.length > 0) {
+    parts.push(
+      restaurantsStore.priceFilters
+        .slice()
+        .sort((a, b) => a - b)
+        .map((p) => '$'.repeat(p))
+        .join('/'),
+    )
+  }
+  const filterText = parts.join(', ')
+  const area = areaParam.value
+  if (!filterText && !area) return ''
+  if (filterText && area) return `${filterText} · ${area}`
+  if (filterText) return `${filterText} · anywhere`
+  return `from ${area}`
+})
 
 const priceLabel = computed(() => {
   if (!restaurant.value) return ''
   return '$'.repeat(restaurant.value.price_range)
 })
 
-const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'] as const
-const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+const DAY_LABELS: Record<typeof DAY_KEYS[number], string> = {
+  mon: 'Mon',
+  tue: 'Tue',
+  wed: 'Wed',
+  thu: 'Thu',
+  fri: 'Fri',
+  sat: 'Sat',
+  sun: 'Sun',
+}
 
-function isDayOpen(index: number): boolean {
-  if (!restaurant.value) return false
-  const key = dayKeys[index]
-  return restaurant.value.open_days.some(d => d.toLowerCase().startsWith(key))
+const openDaysLine = computed(() => {
+  if (!restaurant.value) return ''
+  const openSet = new Set<string>()
+  for (const d of restaurant.value.open_days) {
+    const lower = d.toLowerCase()
+    for (const k of DAY_KEYS) {
+      if (lower.startsWith(k)) {
+        openSet.add(k)
+        break
+      }
+    }
+  }
+  if (openSet.size === 7) return ''
+  // Determine today's key
+  const jsDay = new Date().getDay() // 0=Sun..6=Sat
+  const todayKey = (['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const)[jsDay]
+  const others = DAY_KEYS.filter((k) => k !== todayKey && openSet.has(k)).map((k) => DAY_LABELS[k])
+  if (others.length === 0) return 'Open today only'
+  return `Open today · also ${others.join(', ')}`
+})
+
+const lastVisitedLabel = computed(() => {
+  if (!restaurant.value || !lastVisitedDate.value) return ''
+  if (!isRecentlyVisited(restaurant.value.id)) return ''
+  const last = new Date(lastVisitedDate.value)
+  const now = new Date()
+  // Strip time portions
+  const lastDay = Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate())
+  const todayDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const diff = Math.round((todayDay - lastDay) / (1000 * 60 * 60 * 24))
+  if (diff <= 0) return 'Last visited today'
+  if (diff === 1) return 'Last visited 1 day ago'
+  return `Last visited ${diff} days ago`
+})
+
+function refreshLastVisited(): void {
+  if (!restaurant.value) {
+    lastVisitedDate.value = null
+    return
+  }
+  lastVisitedDate.value = getLastVisited(restaurant.value.id)
 }
 
 function onLetsGo(): void {
   if (!restaurant.value) return
-  markVisited(restaurant.value.id)
+  const r = restaurant.value
+  const q = encodeURIComponent(`${r.name} ${r.mall ?? ''} ${r.area} Singapore`.trim().replace(/\s+/g, ' '))
+  const url = `https://www.google.com/maps/search/?api=1&query=${q}`
+  markVisited(r.id)
+  if (import.meta.client) {
+    window.open(url, '_blank')
+  }
   router.push('/')
 }
 
 function onTryAnother(): void {
   inlineMessage.value = ''
+  rerolling.value = true
   const currentId = restaurantsStore.lastPickedId
   const pick = restaurantsStore.pickRandom(areaParam.value)
   if (!pick) {
     inlineMessage.value = "That's the only option here!"
-    return
-  }
-  if (pick.id === currentId) {
+  } else if (pick.id === currentId) {
     inlineMessage.value = "That's the only option here!"
   }
+  refreshLastVisited()
+  setTimeout(() => {
+    rerolling.value = false
+  }, 200)
 }
+
+watch(
+  () => restaurantsStore.lastPickedId,
+  () => {
+    refreshLastVisited()
+  },
+)
 
 onMounted(() => {
   if (!restaurantsStore.lastPickedId) {
     router.replace('/')
+    return
   }
+  refreshLastVisited()
 })
 </script>
 

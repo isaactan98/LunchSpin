@@ -14,15 +14,38 @@ export interface Restaurant {
   notes?: string
 }
 
-type MealType = 'lunch' | 'dinner'
+export type MealType = 'lunch' | 'dinner'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const VISIT_HISTORY_KEY = 'lunchspin:visit_history'
+const RECENT_DAYS = 3
+
+interface VisitRecord {
+  id: string
+  date: string
+}
+
+function getRecentlyVisitedIds(): string[] {
+  if (!import.meta.client) return []
+  const raw = localStorage.getItem(VISIT_HISTORY_KEY)
+  if (!raw) return []
+  try {
+    const records = JSON.parse(raw) as VisitRecord[]
+    const threshold = new Date()
+    threshold.setDate(threshold.getDate() - RECENT_DAYS)
+    const thresholdStr = threshold.toISOString().split('T')[0]
+    return records.filter((r) => r.date >= thresholdStr).map((r) => r.id)
+  } catch {
+    return []
+  }
+}
 
 interface RestaurantsState {
   all: Restaurant[]
   loaded: boolean
   activeOverrides: Record<string, boolean>
   lastPickedId: string | null
+  lastPickedMeal: MealType | null
   /** Optional price filters — empty = all */
   priceFilters: (1 | 2 | 3)[]
   /** Optional cuisine filters — empty = all */
@@ -43,6 +66,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
     loaded: false,
     activeOverrides: {},
     lastPickedId: null,
+    lastPickedMeal: null,
     priceFilters: [],
     cuisineFilters: [],
   }),
@@ -169,13 +193,22 @@ export const useRestaurantsStore = defineStore('restaurants', {
       if (pool.length === 0) return null
       if (pool.length === 1) {
         this.lastPickedId = pool[0].id
+        this.lastPickedMeal = detectMeal()
         return pool[0]
       }
 
-      const filtered = pool.filter((r) => r.id !== this.lastPickedId)
-      const choices = filtered.length > 0 ? filtered : pool
+      // Avoid the last-picked restaurant if possible
+      let working = pool.filter((r) => r.id !== this.lastPickedId)
+      if (working.length === 0) working = pool
+
+      // Prefer pool members NOT recently visited; fall back if none remain
+      const recentIds = new Set(getRecentlyVisitedIds())
+      const notRecent = working.filter((r) => !recentIds.has(r.id))
+      const choices = notRecent.length > 0 ? notRecent : working
+
       const pick = choices[Math.floor(Math.random() * choices.length)]
       this.lastPickedId = pick.id
+      this.lastPickedMeal = detectMeal()
       return pick
     },
 
