@@ -37,4 +37,10 @@ a:focus:not(:focus-visible) {
   .page-leave-to {
     transform: none;
   }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

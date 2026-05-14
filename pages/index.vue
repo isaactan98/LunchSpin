@@ -42,27 +42,48 @@
           @click="onSurpriseMe"
         >
           <span class="inline-flex items-center gap-2">
-            <span class="text-2xl" aria-hidden="true">🎲</span>
-            <span>Surprise Me</span>
+            <template v-if="!store.hasActiveFilters">
+              <span class="text-2xl" aria-hidden="true">🎲</span>
+              <span>Surprise Me</span>
+            </template>
+            <template v-else>
+              <span>Pick for me</span>
+            </template>
           </span>
         </button>
-        <p v-if="errorMessage" class="mt-3 text-center text-sm text-amber-400">
+        <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
           {{ errorMessage }}
         </p>
         <!-- Prominent clear-filters when nothing matches active filters -->
-        <button
-          v-if="totalAvailable === 0 && store.hasActiveFilters"
-          class="mt-3 w-full py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
-          @click="store.clearFilters"
-        >
-          Clear filters
-        </button>
+        <template v-if="totalAvailable === 0 && store.hasActiveFilters">
+          <button
+            class="mt-3 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
+            @click="store.clearFilters"
+          >
+            Clear all filters
+          </button>
+          <!-- Removable active-filter chips -->
+          <div class="mt-3 flex flex-wrap gap-1.5 justify-center">
+            <button
+              v-for="chip in activeFilterChips"
+              :key="chip.key"
+              class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
+              :aria-label="`Remove ${chip.label} filter`"
+              @click="chip.remove()"
+            >
+              {{ chip.label }}
+              <UIcon name="i-heroicons-x-mark" class="w-3 h-3" aria-hidden="true" />
+            </button>
+          </div>
+        </template>
       </div>
 
       <!-- Filter section (optional, collapsible) -->
       <section class="px-4 mt-6">
         <button
-          class="w-full flex items-center justify-between py-2 text-sm font-medium text-slate-300"
+          class="w-full flex items-center justify-between py-3 text-sm font-medium text-slate-300"
+          :aria-expanded="filtersOpen"
+          aria-controls="refine-panel"
           @click="filtersOpen = !filtersOpen"
         >
           <span class="flex items-center gap-2">
@@ -75,6 +96,8 @@
             <span
               v-if="store.hasActiveFilters"
               class="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30"
+              aria-live="polite"
+              aria-atomic="true"
             >
               {{ activeFilterCount }} active
             </span>
@@ -89,25 +112,26 @@
         <!-- Collapsed filter summary -->
         <p
           v-if="!filtersOpen && store.hasActiveFilters"
-          class="mt-1 text-xs text-slate-400 truncate"
+          class="mt-1 text-[11px] text-slate-400 line-clamp-2 leading-snug"
         >
           {{ filterSummary }}
         </p>
 
-        <div v-if="filtersOpen" class="mt-3 space-y-4 pb-2">
+        <div v-if="filtersOpen" id="refine-panel" class="mt-3 space-y-4 pb-2">
           <!-- Price -->
           <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Price</p>
+            <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Price</h3>
             <div class="flex gap-2">
               <button
                 v-for="opt in priceOptions"
                 :key="opt.value"
-                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+                class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
                 :class="
                   store.priceFilters.includes(opt.value)
-                    ? 'bg-orange-500 border-orange-500 text-white'
+                    ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
                     : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
                 "
+                :aria-pressed="store.priceFilters.includes(opt.value)"
                 @click="store.togglePriceFilter(opt.value)"
               >
                 <div class="font-bold">{{ opt.symbol }}</div>
@@ -118,17 +142,18 @@
 
           <!-- With -->
           <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">With</p>
+            <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">With</h3>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="opt in withOptions"
                 :key="opt.value"
-                class="px-3 py-2 rounded-full text-xs font-medium border transition-all"
+                class="px-3.5 py-2.5 rounded-full text-sm font-medium border transition-all"
                 :class="
                   store.withFilters.includes(opt.value)
-                    ? 'bg-orange-500 border-orange-500 text-white'
+                    ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
                     : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
                 "
+                :aria-pressed="store.withFilters.includes(opt.value)"
                 @click="store.toggleWithFilter(opt.value)"
               >
                 {{ opt.label }}
@@ -136,73 +161,80 @@
             </div>
           </div>
 
-          <!-- Service -->
-          <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Service</p>
-            <div class="flex gap-2">
-              <button
-                v-for="opt in serviceOptions"
-                :key="opt.value"
-                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
-                :class="
-                  store.serviceFilters.includes(opt.value)
-                    ? 'bg-orange-500 border-orange-500 text-white'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                "
-                @click="store.toggleServiceFilter(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
+          <!-- Service / Ordering / Payment (compact 3-col grid) -->
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <h3 class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5">Service</h3>
+              <div class="flex flex-col gap-1.5">
+                <button
+                  v-for="opt in serviceOptions"
+                  :key="opt.value"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  :class="
+                    store.serviceFilters.includes(opt.value)
+                      ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                  "
+                  :aria-pressed="store.serviceFilters.includes(opt.value)"
+                  @click="store.toggleServiceFilter(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
             </div>
-          </div>
-
-          <!-- Ordering -->
-          <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Ordering</p>
-            <div class="flex gap-2">
-              <button
-                v-for="opt in orderingOptions"
-                :key="opt.value"
-                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
-                :class="
-                  store.orderingFilters.includes(opt.value)
-                    ? 'bg-orange-500 border-orange-500 text-white'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                "
-                @click="store.toggleOrderingFilter(opt.value)"
+            <div>
+              <h3
+                class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5"
+                title="Individual = own dish · Shared = order dishes to share, 叫料吃"
               >
-                {{ opt.label }}
-              </button>
+                Ordering
+              </h3>
+              <div class="flex flex-col gap-1.5">
+                <button
+                  v-for="opt in orderingOptions"
+                  :key="opt.value"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  :class="
+                    store.orderingFilters.includes(opt.value)
+                      ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                  "
+                  :aria-pressed="store.orderingFilters.includes(opt.value)"
+                  @click="store.toggleOrderingFilter(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
             </div>
-          </div>
-
-          <!-- Payment -->
-          <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Payment</p>
-            <div class="flex gap-2">
-              <button
-                v-for="opt in payOptions"
-                :key="opt.value"
-                class="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
-                :class="
-                  store.payFilters.includes(opt.value)
-                    ? 'bg-orange-500 border-orange-500 text-white'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                "
-                @click="store.togglePayFilter(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
+            <div>
+              <h3 class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5">Payment</h3>
+              <p class="text-[10px] text-slate-600 mb-1">How the bill is handled</p>
+              <div class="flex flex-col gap-1.5">
+                <button
+                  v-for="opt in payOptions"
+                  :key="opt.value"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  :class="
+                    store.payFilters.includes(opt.value)
+                      ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                  "
+                  :aria-pressed="store.payFilters.includes(opt.value)"
+                  @click="store.togglePayFilter(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Cuisine -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <p class="text-xs uppercase tracking-wide text-slate-400">Cuisine</p>
+          <div class="pt-4 mt-4 border-t border-slate-800">
+            <div class="flex items-center justify-between mb-1.5">
+              <h3 class="text-[11px] uppercase tracking-wide text-slate-400">Cuisine</h3>
               <button
                 v-if="store.cuisineFilters.length > 0"
-                class="text-xs text-orange-400 hover:text-orange-300"
+                class="text-xs text-orange-400 hover:text-orange-300 px-2 py-1 -mr-2 -my-1"
                 @click="store.cuisineFilters = []"
               >
                 Clear
@@ -212,12 +244,13 @@
               <button
                 v-for="cuisine in cuisines"
                 :key="cuisine"
-                class="px-3 py-2.5 rounded-full text-xs font-medium border transition-all"
+                class="px-3.5 py-3 rounded-full text-sm font-medium border transition-all"
                 :class="
                   store.cuisineFilters.includes(cuisine)
-                    ? 'bg-orange-500 border-orange-500 text-white'
+                    ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
                     : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
                 "
+                :aria-pressed="store.cuisineFilters.includes(cuisine)"
                 @click="store.toggleCuisineFilter(cuisine)"
               >
                 {{ cuisine }}
@@ -227,7 +260,7 @@
 
           <button
             v-if="store.hasActiveFilters"
-            class="w-full py-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            class="w-full py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors"
             @click="store.clearFilters"
           >
             Clear all filters
@@ -293,7 +326,7 @@ const priceOptions = [
 const withOptions = [
   { value: 'solo' as const, label: 'Solo' },
   { value: 'date' as const, label: 'Date' },
-  { value: 'colleague' as const, label: 'Colleague' },
+  { value: 'colleague' as const, label: 'Work lunch' },
   { value: 'family' as const, label: 'Family' },
 ]
 
@@ -315,7 +348,7 @@ const payOptions = [
 const withLabelMap: Record<string, string> = {
   solo: 'Solo',
   date: 'Date',
-  colleague: 'Colleague',
+  colleague: 'Work lunch',
   family: 'Family',
 }
 const serviceLabelMap: Record<string, string> = {
@@ -371,6 +404,74 @@ const filterSummary = computed(() => {
     parts.push(store.cuisineFilters.join(', '))
   }
   return parts.join(' · ')
+})
+
+interface FilterChip {
+  key: string
+  label: string
+  remove: () => void
+}
+
+const activeFilterChips = computed<FilterChip[]>(() => {
+  const chips: FilterChip[] = []
+
+  for (const p of store.priceFilters.slice().sort((a, b) => a - b)) {
+    chips.push({
+      key: `price:${p}`,
+      label: '$'.repeat(p),
+      remove: () => store.togglePriceFilter(p),
+    })
+  }
+
+  for (const w of store.withFilters) {
+    chips.push({
+      key: `with:${w}`,
+      label: withLabelMap[w] ?? w,
+      remove: () => store.toggleWithFilter(w),
+    })
+  }
+
+  // Service is only "active" when it's not the default (both)
+  if (store.serviceFilters.length !== 2) {
+    for (const s of store.serviceFilters) {
+      chips.push({
+        key: `service:${s}`,
+        label: serviceLabelMap[s] ?? s,
+        // Re-add the missing service mode to restore default (avoid empty state)
+        remove: () => {
+          const other: 'dine-in' | 'takeaway' = s === 'dine-in' ? 'takeaway' : 'dine-in'
+          if (!store.serviceFilters.includes(other)) store.toggleServiceFilter(other)
+          store.toggleServiceFilter(s)
+        },
+      })
+    }
+  }
+
+  for (const o of store.orderingFilters) {
+    chips.push({
+      key: `ordering:${o}`,
+      label: orderingLabelMap[o] ?? o,
+      remove: () => store.toggleOrderingFilter(o),
+    })
+  }
+
+  for (const p of store.payFilters) {
+    chips.push({
+      key: `pay:${p}`,
+      label: payLabelMap[p] ?? p,
+      remove: () => store.togglePayFilter(p),
+    })
+  }
+
+  for (const c of store.cuisineFilters) {
+    chips.push({
+      key: `cuisine:${c}`,
+      label: c,
+      remove: () => store.toggleCuisineFilter(c),
+    })
+  }
+
+  return chips
 })
 
 interface AreaEntry {

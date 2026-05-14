@@ -19,7 +19,7 @@
           v-model="search"
           type="text"
           placeholder="Search by name or area..."
-          class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-orange-500"
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-base text-white placeholder-slate-400 focus:outline-none focus:border-orange-500"
         >
       </div>
 
@@ -126,6 +126,28 @@
                   {{ restaurant.cuisine.slice(0, 2).join(', ') }} · {{ '$'.repeat(restaurant.price_range) }}
                 </p>
 
+                <!-- Dimension icons (service / ordering) -->
+                <div class="flex items-center gap-1.5 mt-1 text-slate-500">
+                  <UIcon
+                    v-if="restaurant.service.includes('dine-in')"
+                    name="i-heroicons-home-modern"
+                    class="w-4 h-4"
+                    aria-hidden="true"
+                  />
+                  <UIcon
+                    v-if="restaurant.service.includes('takeaway')"
+                    name="i-heroicons-shopping-bag"
+                    class="w-4 h-4"
+                    aria-hidden="true"
+                  />
+                  <UIcon
+                    v-if="restaurant.ordering_style === 'shared' || restaurant.ordering_style === 'both'"
+                    name="i-heroicons-users"
+                    class="w-4 h-4"
+                    aria-hidden="true"
+                  />
+                </div>
+
                 <!-- Tags (limit to 3) -->
                 <div v-if="restaurant.tags.length" class="flex flex-wrap gap-1 mt-2">
                   <span
@@ -189,6 +211,8 @@ interface Restaurant {
   tags: string[]
   active: boolean
   notes?: string
+  service: ('dine-in' | 'takeaway')[]
+  ordering_style: 'individual' | 'shared' | 'both'
 }
 
 interface AreaGroup {

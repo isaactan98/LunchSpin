@@ -26,7 +26,7 @@
     <main class="flex-1 px-4 pb-4">
       <div
         v-if="restaurant"
-        class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-2xl shadow-orange-500/10 ring-1 ring-orange-500/20 transition-opacity duration-200"
+        class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-2xl shadow-orange-500/15 transition-opacity duration-200"
         :class="rerolling ? 'opacity-50' : 'opacity-100'"
       >
         <!-- Name + price -->
@@ -60,6 +60,18 @@
             class="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
           >
             {{ c }}
+          </span>
+        </div>
+
+        <!-- Context badges: only show narrowing ones -->
+        <div v-if="contextBadges.length" class="mt-3 flex flex-wrap gap-1.5">
+          <span
+            v-for="b in contextBadges"
+            :key="b.label"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-slate-900 border border-slate-700 text-slate-300"
+          >
+            <UIcon :name="b.icon" class="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+            {{ b.label }}
           </span>
         </div>
 
@@ -114,7 +126,7 @@
 
       <p
         v-if="inlineMessage"
-        class="mt-4 text-center text-sm text-amber-400"
+        class="mt-4 text-center text-sm text-rose-300"
       >
         {{ inlineMessage }}
       </p>
@@ -167,11 +179,27 @@ const headerTitle = computed(() => {
   return m === 'dinner' ? "Tonight's pick" : 'Lunch pick'
 })
 
-const scopeChip = computed(() => {
+const withLabelMap: Record<string, string> = {
+  solo: 'Solo',
+  date: 'Date',
+  colleague: 'Work lunch',
+  family: 'Family',
+}
+const serviceLabelMap: Record<string, string> = {
+  'dine-in': 'Dine-in',
+  'takeaway': 'Takeaway',
+}
+const orderingLabelMap: Record<string, string> = {
+  individual: 'Individual',
+  shared: 'Shared',
+}
+const payLabelMap: Record<string, string> = {
+  split: 'Split',
+  treat: 'Treat',
+}
+
+const filterSummary = computed(() => {
   const parts: string[] = []
-  if (restaurantsStore.cuisineFilters.length > 0) {
-    parts.push(restaurantsStore.cuisineFilters.join(', '))
-  }
   if (restaurantsStore.priceFilters.length > 0) {
     parts.push(
       restaurantsStore.priceFilters
@@ -181,12 +209,80 @@ const scopeChip = computed(() => {
         .join('/'),
     )
   }
-  const filterText = parts.join(', ')
+  if (restaurantsStore.withFilters.length > 0) {
+    parts.push(restaurantsStore.withFilters.map((w) => withLabelMap[w]).join('/'))
+  }
+  if (restaurantsStore.serviceFilters.length !== 2) {
+    parts.push(restaurantsStore.serviceFilters.map((s) => serviceLabelMap[s]).join('/'))
+  }
+  if (restaurantsStore.orderingFilters.length > 0) {
+    parts.push(restaurantsStore.orderingFilters.map((o) => orderingLabelMap[o]).join('/'))
+  }
+  if (restaurantsStore.payFilters.length > 0) {
+    parts.push(restaurantsStore.payFilters.map((p) => payLabelMap[p]).join('/'))
+  }
+  if (restaurantsStore.cuisineFilters.length > 0) {
+    parts.push(restaurantsStore.cuisineFilters.join(', '))
+  }
+  return parts.join(' · ')
+})
+
+const scopeChip = computed(() => {
+  const filterText = filterSummary.value
   const area = areaParam.value
   if (!filterText && !area) return ''
   if (filterText && area) return `${filterText} · ${area}`
   if (filterText) return `${filterText} · anywhere`
   return `from ${area}`
+})
+
+interface ContextBadge {
+  label: string
+  icon: string
+}
+
+const contextBadges = computed<ContextBadge[]>(() => {
+  const r = restaurant.value
+  if (!r) return []
+  const badges: ContextBadge[] = []
+
+  // Service: only one mode → narrowing
+  if (r.service.length === 1) {
+    if (r.service[0] === 'dine-in') {
+      badges.push({ label: 'Dine-in only', icon: 'i-heroicons-home-modern' })
+    } else {
+      badges.push({ label: 'Takeaway only', icon: 'i-heroicons-shopping-bag' })
+    }
+  }
+
+  // Ordering style: shared always informative, individual only if user filtered
+  if (r.ordering_style === 'shared') {
+    badges.push({ label: 'Shared dining', icon: 'i-heroicons-users' })
+  } else if (
+    r.ordering_style === 'individual'
+    && restaurantsStore.orderingFilters.length > 0
+  ) {
+    badges.push({ label: 'Individual orders', icon: 'i-heroicons-user' })
+  }
+
+  // Pay style
+  if (r.pay_style === 'treat') {
+    badges.push({ label: 'Treat-worthy', icon: 'i-heroicons-banknotes' })
+  }
+
+  // Suitable-for: only one value → narrowing
+  if (r.suitable_for.length === 1) {
+    const v = r.suitable_for[0]
+    const labelMap: Record<string, string> = {
+      solo: 'Solo',
+      date: 'Date',
+      colleague: 'Work lunch',
+      family: 'Family',
+    }
+    badges.push({ label: `Best for ${labelMap[v] ?? v}`, icon: 'i-heroicons-sparkles' })
+  }
+
+  return badges.slice(0, 4)
 })
 
 const priceLabel = computed(() => {

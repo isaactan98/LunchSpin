@@ -27,7 +27,14 @@ export type MealType = 'lunch' | 'dinner'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const VISIT_HISTORY_KEY = 'lunchspin:visit_history'
+const FILTERS_KEY = 'lunchspin:filters'
 const RECENT_DAYS = 3
+
+const ALLOWED_PRICES: ReadonlySet<number> = new Set([1, 2, 3])
+const ALLOWED_SERVICES: ReadonlySet<string> = new Set(['dine-in', 'takeaway'])
+const ALLOWED_WITH: ReadonlySet<string> = new Set(['solo', 'date', 'colleague', 'family'])
+const ALLOWED_ORDERING: ReadonlySet<string> = new Set(['individual', 'shared'])
+const ALLOWED_PAY: ReadonlySet<string> = new Set(['split', 'treat'])
 
 interface VisitRecord {
   id: string
@@ -223,6 +230,76 @@ export const useRestaurantsStore = defineStore('restaurants', {
             this.activeOverrides = {}
           }
         }
+      }
+    },
+
+    loadFilters() {
+      if (!import.meta.client) return
+      const raw = localStorage.getItem(FILTERS_KEY)
+      if (!raw) return
+      try {
+        const parsed = JSON.parse(raw) as Record<string, unknown>
+
+        if (Array.isArray(parsed.priceFilters)) {
+          const valid = parsed.priceFilters.filter(
+            (v): v is 1 | 2 | 3 => typeof v === 'number' && ALLOWED_PRICES.has(v),
+          )
+          this.priceFilters = valid
+        }
+
+        if (Array.isArray(parsed.cuisineFilters)) {
+          const valid = parsed.cuisineFilters.filter((v): v is string => typeof v === 'string')
+          this.cuisineFilters = valid
+        }
+
+        if (Array.isArray(parsed.serviceFilters)) {
+          const valid = parsed.serviceFilters.filter(
+            (v): v is ServiceMode => typeof v === 'string' && ALLOWED_SERVICES.has(v),
+          ) as ServiceMode[]
+          // Service must be non-empty; fall back to default if empty after validation
+          this.serviceFilters = valid.length > 0 ? valid : ['dine-in', 'takeaway']
+        }
+
+        if (Array.isArray(parsed.withFilters)) {
+          const valid = parsed.withFilters.filter(
+            (v): v is SuitableFor => typeof v === 'string' && ALLOWED_WITH.has(v),
+          ) as SuitableFor[]
+          this.withFilters = valid
+        }
+
+        if (Array.isArray(parsed.orderingFilters)) {
+          const valid = parsed.orderingFilters.filter(
+            (v): v is 'individual' | 'shared' =>
+              typeof v === 'string' && ALLOWED_ORDERING.has(v),
+          )
+          this.orderingFilters = valid
+        }
+
+        if (Array.isArray(parsed.payFilters)) {
+          const valid = parsed.payFilters.filter(
+            (v): v is 'split' | 'treat' => typeof v === 'string' && ALLOWED_PAY.has(v),
+          )
+          this.payFilters = valid
+        }
+      } catch {
+        // Ignore corrupted storage
+      }
+    },
+
+    persistFilters() {
+      if (!import.meta.client) return
+      try {
+        const payload = {
+          priceFilters: this.priceFilters,
+          cuisineFilters: this.cuisineFilters,
+          serviceFilters: this.serviceFilters,
+          withFilters: this.withFilters,
+          orderingFilters: this.orderingFilters,
+          payFilters: this.payFilters,
+        }
+        localStorage.setItem(FILTERS_KEY, JSON.stringify(payload))
+      } catch {
+        // Ignore quota/serialization errors
       }
     },
 
