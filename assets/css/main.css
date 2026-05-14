@@ -11,61 +11,72 @@ body {
   overscroll-behavior-y: contain;
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+   Page transitions — GPU-friendly, asymmetric for forward/back feel
+   ──────────────────────────────────────────────────────────────────────────── */
 .page-enter-active {
-  transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 .page-leave-active {
-  transition: opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
-              transform 0.18s cubic-bezier(0.4, 0, 1, 1);
+  transition: opacity 0.14s cubic-bezier(0.4, 0, 1, 1),
+              transform 0.14s cubic-bezier(0.4, 0, 1, 1);
+  will-change: opacity, transform;
 }
 .page-enter-from {
   opacity: 0;
-  transform: translate3d(16px, 0, 0);
+  transform: translate3d(12px, 0, 0);
 }
 .page-leave-to {
   opacity: 0;
-  transform: translate3d(-12px, 0, 0);
+  transform: translate3d(-8px, 0, 0);
 }
 
-/* Collapse (used by Refine panel and IosInstallHint) */
+/* ────────────────────────────────────────────────────────────────────────────
+   Collapse — opacity + slide ONLY (no height animation)
+   grid-template-rows animation is not GPU-accelerated on mobile and feels
+   chunky. We accept a layout jump on enter/leave in exchange for a smooth
+   fade-slide. The jump happens BELOW the user's tap target so it reads OK.
+   ──────────────────────────────────────────────────────────────────────────── */
 .collapse-enter-active,
 .collapse-leave-active {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition: grid-template-rows 0.22s ease-out, opacity 0.22s ease-out;
+  transition: opacity 0.16s ease-out, transform 0.16s ease-out;
+  will-change: opacity, transform;
 }
 .collapse-enter-from,
 .collapse-leave-to {
-  grid-template-rows: 0fr;
   opacity: 0;
-}
-.collapse-enter-active > *,
-.collapse-leave-active > * {
-  overflow: hidden;
-  min-height: 0;
+  transform: translate3d(0, -6px, 0);
 }
 
-/* Re-roll card swap */
+/* ────────────────────────────────────────────────────────────────────────────
+   Re-roll card swap — keyed Transition with mode=out-in
+   ──────────────────────────────────────────────────────────────────────────── */
 .reroll-enter-active {
-  transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.18s ease-out, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 .reroll-leave-active {
-  transition: opacity 0.14s ease-in, transform 0.14s ease-in;
+  transition: opacity 0.12s ease-in, transform 0.12s ease-in;
+  will-change: opacity, transform;
 }
 .reroll-enter-from {
   opacity: 0;
-  transform: translateY(8px) scale(0.98);
+  transform: translate3d(0, 6px, 0) scale(0.99);
 }
 .reroll-leave-to {
   opacity: 0;
-  transform: translateY(-6px) scale(0.98);
+  transform: translate3d(0, -4px, 0) scale(0.99);
 }
 
-/* List transitions for Manage cards */
+/* ────────────────────────────────────────────────────────────────────────────
+   List transitions for Manage cards (TransitionGroup)
+   ──────────────────────────────────────────────────────────────────────────── */
 .list-enter-active,
 .list-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  will-change: opacity, transform;
 }
 .list-leave-active {
   position: absolute;
@@ -74,21 +85,25 @@ body {
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translate3d(0, 4px, 0);
 }
 .list-move {
-  transition: transform 0.22s ease;
+  transition: transform 0.18s ease;
+  will-change: transform;
 }
 
-/* Generic fade */
+/* ────────────────────────────────────────────────────────────────────────────
+   Generic fade — used on empty states and scope chip
+   ──────────────────────────────────────────────────────────────────────────── */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  will-change: opacity, transform;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translate3d(0, 3px, 0);
 }
 
 :focus-visible {
