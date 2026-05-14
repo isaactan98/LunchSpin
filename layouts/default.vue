@@ -25,9 +25,9 @@
           :aria-current="route.path === '/' ? 'page' : undefined"
         >
           <span
-            v-if="route.path === '/'"
             aria-hidden="true"
-            class="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-orange-400"
+            class="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-orange-400 origin-center transition-transform duration-200"
+            :class="route.path === '/' ? 'scale-x-100' : 'scale-x-0'"
           />
           <UIcon name="i-heroicons-home" class="w-5 h-5" aria-hidden="true" />
           <span>Home</span>
@@ -39,9 +39,9 @@
           :aria-current="route.path === '/manage' ? 'page' : undefined"
         >
           <span
-            v-if="route.path === '/manage'"
             aria-hidden="true"
-            class="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-orange-400"
+            class="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-orange-400 origin-center transition-transform duration-200"
+            :class="route.path === '/manage' ? 'scale-x-100' : 'scale-x-0'"
           />
           <UIcon name="i-heroicons-list-bullet" class="w-5 h-5" aria-hidden="true" />
           <span>Manage</span>

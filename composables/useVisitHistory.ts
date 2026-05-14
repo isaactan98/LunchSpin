@@ -1,3 +1,5 @@
+import { ref } from 'vue'
+
 const STORAGE_KEY = 'lunchspin:visit_history'
 const RECENT_DAYS = 3
 
@@ -32,42 +34,56 @@ function save(records: VisitRecord[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
 }
 
+function toMap(records: VisitRecord[]): Record<string, string> {
+  const map: Record<string, string> = {}
+  records.forEach((r) => { map[r.id] = r.date })
+  return map
+}
+
+// Module-level reactive state so all consumers share the same source of truth.
+const allVisitsRef = ref<Record<string, string>>({})
+let hydrated = false
+
+function hydrate(): void {
+  if (hydrated || !import.meta.client) return
+  allVisitsRef.value = toMap(load())
+  hydrated = true
+}
+
 export function useVisitHistory() {
+  hydrate()
+
   function markVisited(id: string) {
     const records = load()
     const filtered = records.filter((r) => r.id !== id)
     filtered.push({ id, date: today() })
     save(filtered)
+    allVisitsRef.value = toMap(filtered)
   }
 
   function getLastVisited(id: string): string | null {
-    const records = load()
-    const record = records.find((r) => r.id === id)
-    return record ? record.date : null
+    return allVisitsRef.value[id] ?? null
   }
 
   function getRecentlyVisited(): string[] {
     const threshold = daysAgo(RECENT_DAYS)
-    const records = load()
-    return records
-      .filter((r) => r.date >= threshold)
-      .map((r) => r.id)
+    return Object.entries(allVisitsRef.value)
+      .filter(([, date]) => date >= threshold)
+      .map(([id]) => id)
   }
 
   function getAllVisits(): Record<string, string> {
-    const records = load()
-    const map: Record<string, string> = {}
-    records.forEach((r) => { map[r.id] = r.date })
-    return map
+    return allVisitsRef.value
   }
 
   function isRecentlyVisited(id: string): boolean {
     const threshold = daysAgo(RECENT_DAYS)
-    const last = getLastVisited(id)
-    return last !== null && last >= threshold
+    const last = allVisitsRef.value[id]
+    return last !== undefined && last >= threshold
   }
 
   return {
+    allVisits: allVisitsRef,
     markVisited,
     getLastVisited,
     getRecentlyVisited,

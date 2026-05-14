@@ -14,9 +14,21 @@
     <!-- iOS install hint -->
     <IosInstallHint />
 
+    <!-- Skeleton placeholder while store is loading -->
+    <div
+      v-if="!store.loaded"
+      class="px-4"
+      aria-hidden="true"
+    >
+      <div class="w-full h-16 rounded-2xl bg-slate-800/50 animate-pulse" />
+      <div class="grid grid-cols-2 gap-3 mt-6">
+        <div v-for="i in 4" :key="i" class="h-24 rounded-2xl bg-slate-800/50 animate-pulse" />
+      </div>
+    </div>
+
     <!-- All-restaurants-hidden empty state -->
     <div
-      v-if="noVisible"
+      v-else-if="noVisible"
       class="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center gap-4"
     >
       <UIcon name="i-heroicons-eye-slash" class="w-12 h-12 text-slate-500" aria-hidden="true" />
@@ -37,13 +49,16 @@
       <!-- Hero CTA -->
       <div class="px-4">
         <button
-          class="w-full py-5 rounded-2xl font-bold text-xl text-white shadow-lg shadow-orange-500/20 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 transition-all active:scale-95 disabled:opacity-50 disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
+          class="group w-full py-5 rounded-2xl font-bold text-xl text-white shadow-lg shadow-orange-500/20 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 transition-all active:scale-95 disabled:opacity-50 disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
           :disabled="totalAvailable === 0"
           @click="onSurpriseMe"
         >
           <span class="inline-flex items-center gap-2">
             <template v-if="!store.hasActiveFilters">
-              <span class="text-2xl" aria-hidden="true">🎲</span>
+              <span
+                class="text-2xl inline-block transition-transform duration-150 group-active:rotate-12"
+                aria-hidden="true"
+              >🎲</span>
               <span>Surprise Me</span>
             </template>
             <template v-else>
@@ -54,28 +69,30 @@
         <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
           {{ errorMessage }}
         </p>
-        <!-- Prominent clear-filters when nothing matches active filters -->
-        <template v-if="totalAvailable === 0 && store.hasActiveFilters">
-          <button
-            class="mt-3 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
-            @click="store.clearFilters"
-          >
-            Clear all filters
-          </button>
-          <!-- Removable active-filter chips -->
-          <div class="mt-3 flex flex-wrap gap-1.5 justify-center">
+        <Transition name="fade">
+          <!-- Prominent clear-filters when nothing matches active filters -->
+          <div v-if="totalAvailable === 0 && store.hasActiveFilters" key="clear">
             <button
-              v-for="chip in activeFilterChips"
-              :key="chip.key"
-              class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
-              :aria-label="`Remove ${chip.label} filter`"
-              @click="chip.remove()"
+              class="mt-3 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
+              @click="store.clearFilters"
             >
-              {{ chip.label }}
-              <UIcon name="i-heroicons-x-mark" class="w-3 h-3" aria-hidden="true" />
+              Clear all filters
             </button>
+            <!-- Removable active-filter chips -->
+            <div class="mt-3 flex flex-wrap gap-1.5 justify-center">
+              <button
+                v-for="chip in activeFilterChips"
+                :key="chip.key"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
+                :aria-label="`Remove ${chip.label} filter`"
+                @click="chip.remove()"
+              >
+                {{ chip.label }}
+                <UIcon name="i-heroicons-x-mark" class="w-3 h-3" aria-hidden="true" />
+              </button>
+            </div>
           </div>
-        </template>
+        </Transition>
       </div>
 
       <!-- Filter section (optional, collapsible) -->
@@ -103,8 +120,9 @@
             </span>
           </span>
           <UIcon
-            :name="filtersOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-            class="w-4 h-4 text-slate-400"
+            name="i-heroicons-chevron-down"
+            class="w-4 h-4 text-slate-400 transition-transform duration-200"
+            :class="filtersOpen && 'rotate-180'"
             aria-hidden="true"
           />
         </button>
@@ -114,10 +132,11 @@
           v-if="!filtersOpen && store.hasActiveFilters"
           class="mt-1 text-[11px] text-slate-400 line-clamp-2 leading-snug"
         >
-          {{ filterSummary }}
+          {{ store.filterSummary }}
         </p>
 
-        <div v-if="filtersOpen" id="refine-panel" class="mt-3 space-y-4 pb-2">
+        <Transition name="collapse">
+          <div v-if="filtersOpen" id="refine-panel" class="mt-3 space-y-4 pb-2">
           <!-- Price -->
           <div>
             <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Price</h3>
@@ -125,7 +144,7 @@
               <button
                 v-for="opt in priceOptions"
                 :key="opt.value"
-                class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
+                class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all active:scale-95"
                 :class="
                   store.priceFilters.includes(opt.value)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -147,7 +166,7 @@
               <button
                 v-for="opt in withOptions"
                 :key="opt.value"
-                class="px-3.5 py-2.5 rounded-full text-sm font-medium border transition-all"
+                class="px-3.5 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95"
                 :class="
                   store.withFilters.includes(opt.value)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -164,12 +183,12 @@
           <!-- Service / Ordering / Payment (compact 3-col grid) -->
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <h3 class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5">Service</h3>
+              <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Service</h3>
               <div class="flex flex-col gap-1.5">
                 <button
                   v-for="opt in serviceOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
                   :class="
                     store.serviceFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -184,7 +203,7 @@
             </div>
             <div>
               <h3
-                class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5"
+                class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5"
                 title="Individual = own dish · Shared = order dishes to share, 叫料吃"
               >
                 Ordering
@@ -193,7 +212,7 @@
                 <button
                   v-for="opt in orderingOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
                   :class="
                     store.orderingFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -207,13 +226,17 @@
               </div>
             </div>
             <div>
-              <h3 class="text-[11px] uppercase tracking-wide text-slate-500 mb-1.5">Payment</h3>
-              <p class="text-[10px] text-slate-600 mb-1">How the bill is handled</p>
+              <h3
+                class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5"
+                title="How the bill is handled"
+              >
+                Payment
+              </h3>
               <div class="flex flex-col gap-1.5">
                 <button
                   v-for="opt in payOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all whitespace-nowrap"
+                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
                   :class="
                     store.payFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -244,7 +267,7 @@
               <button
                 v-for="cuisine in cuisines"
                 :key="cuisine"
-                class="px-3.5 py-3 rounded-full text-sm font-medium border transition-all"
+                class="px-3.5 py-3 rounded-full text-sm font-medium border transition-all active:scale-95"
                 :class="
                   store.cuisineFilters.includes(cuisine)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -265,7 +288,8 @@
           >
             Clear all filters
           </button>
-        </div>
+          </div>
+        </Transition>
       </section>
 
       <!-- Location grid -->
@@ -296,6 +320,12 @@
             <div class="text-xs text-slate-400">
               {{ area.count }} {{ area.count === 1 ? 'place' : 'places' }}
             </div>
+            <div
+              v-if="area.count === 0 && store.hasActiveFilters"
+              class="text-[10px] text-slate-500"
+            >
+              Doesn't match filters
+            </div>
           </button>
         </div>
       </section>
@@ -310,7 +340,15 @@ const router = useRouter()
 const store = useRestaurantsStore()
 
 const errorMessage = ref<string>('')
-const filtersOpen = ref(false)
+const filtersOpen = ref(store.hasActiveFilters)
+
+// If filters get rehydrated after first render, auto-open the panel once.
+watch(
+  () => store.hasActiveFilters,
+  (next, prev) => {
+    if (!prev && next) filtersOpen.value = true
+  },
+)
 
 const meal = computed(() => store.currentMeal())
 const mealIcon = computed(() => (meal.value === 'lunch' ? '☀️' : '🌙'))
@@ -375,36 +413,7 @@ const activeFilterCount = computed(() => {
 })
 
 const totalAvailable = computed(() => store.availableNow.length)
-const noVisible = computed(() => store.visible.length === 0)
-
-const filterSummary = computed(() => {
-  const parts: string[] = []
-  if (store.priceFilters.length > 0) {
-    parts.push(
-      store.priceFilters
-        .slice()
-        .sort((a, b) => a - b)
-        .map((p) => '$'.repeat(p))
-        .join('/'),
-    )
-  }
-  if (store.withFilters.length > 0) {
-    parts.push(store.withFilters.map((w) => withLabelMap[w]).join('/'))
-  }
-  if (store.serviceFilters.length !== 2) {
-    parts.push(store.serviceFilters.map((s) => serviceLabelMap[s]).join('/'))
-  }
-  if (store.orderingFilters.length > 0) {
-    parts.push(store.orderingFilters.map((o) => orderingLabelMap[o]).join('/'))
-  }
-  if (store.payFilters.length > 0) {
-    parts.push(store.payFilters.map((p) => payLabelMap[p]).join('/'))
-  }
-  if (store.cuisineFilters.length > 0) {
-    parts.push(store.cuisineFilters.join(', '))
-  }
-  return parts.join(' · ')
-})
+const noVisible = computed(() => store.loaded && store.visible.length === 0)
 
 interface FilterChip {
   key: string

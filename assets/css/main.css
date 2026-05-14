@@ -2,19 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-.page-enter-active,
-.page-leave-active {
-  transition: all 0.25s ease;
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
+body {
+  overscroll-behavior-y: contain;
+}
+
+.page-enter-active {
+  transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.page-leave-active {
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
+              transform 0.18s cubic-bezier(0.4, 0, 1, 1);
+}
 .page-enter-from {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translate3d(16px, 0, 0);
 }
-
 .page-leave-to {
   opacity: 0;
-  transform: translateX(-20px);
+  transform: translate3d(-12px, 0, 0);
+}
+
+/* Collapse (used by Refine panel and IosInstallHint) */
+.collapse-enter-active,
+.collapse-leave-active {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.22s ease-out, opacity 0.22s ease-out;
+}
+.collapse-enter-from,
+.collapse-leave-to {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.collapse-enter-active > *,
+.collapse-leave-active > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Re-roll card swap */
+.reroll-enter-active {
+  transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reroll-leave-active {
+  transition: opacity 0.14s ease-in, transform 0.14s ease-in;
+}
+.reroll-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+.reroll-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
+/* List transitions for Manage cards */
+.list-enter-active,
+.list-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.list-leave-active {
+  position: absolute;
+  width: calc(100% - 2rem);
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.list-move {
+  transition: transform 0.22s ease;
+}
+
+/* Generic fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 :focus-visible {

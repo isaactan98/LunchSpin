@@ -48,9 +48,22 @@
 
     <!-- Restaurant list grouped by area -->
     <div class="flex-1 px-4 pb-8">
+      <!-- Skeleton placeholder while loading -->
+      <div
+        v-if="!restaurantsStore.loaded"
+        class="space-y-3 pt-3"
+        aria-hidden="true"
+      >
+        <div
+          v-for="i in 4"
+          :key="i"
+          class="h-24 rounded-2xl bg-slate-800/50 animate-pulse"
+        />
+      </div>
+
       <!-- Empty state -->
       <div
-        v-if="grouped.length === 0"
+        v-else-if="grouped.length === 0"
         class="flex flex-col items-center justify-center py-20 text-center gap-3"
       >
         <UIcon
@@ -86,7 +99,7 @@
         </div>
 
         <!-- Cards -->
-        <div class="space-y-3 pt-3">
+        <TransitionGroup name="list" tag="div" class="relative space-y-3 pt-3">
           <article
             v-for="restaurant in group.items"
             :key="restaurant.id"
@@ -187,7 +200,7 @@
               </button>
             </div>
           </article>
-        </div>
+        </TransitionGroup>
       </section>
     </div>
   </div>
@@ -197,6 +210,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRestaurantsStore } from '~/stores/restaurants'
 import { useVisitHistory } from '~/composables/useVisitHistory'
+
 
 type FilterMode = 'all' | 'active' | 'hidden'
 
@@ -221,11 +235,10 @@ interface AreaGroup {
 }
 
 const restaurantsStore = useRestaurantsStore()
-const { getAllVisits, isRecentlyVisited: checkRecent } = useVisitHistory()
+const { allVisits, isRecentlyVisited: checkRecent } = useVisitHistory()
 
 const search = ref('')
 const filterMode = ref<FilterMode>('all')
-const allVisits = ref<Record<string, string>>({})
 const headerEl = ref<HTMLElement | null>(null)
 const headerHeight = ref(180)
 
@@ -246,7 +259,6 @@ function measureHeader(): void {
 let resizeObs: ResizeObserver | null = null
 
 onMounted(() => {
-  allVisits.value = getAllVisits()
   measureHeader()
   if (headerEl.value && typeof ResizeObserver !== 'undefined') {
     resizeObs = new ResizeObserver(() => measureHeader())

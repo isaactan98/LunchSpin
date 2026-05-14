@@ -13,22 +13,25 @@
     </header>
 
     <!-- Scope chip -->
-    <div v-if="scopeChip" class="px-4 mb-3">
-      <span
-        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300"
-      >
-        <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
-        <span>{{ scopeChip }}</span>
-      </span>
-    </div>
+    <Transition name="fade">
+      <div v-if="scopeChip" :key="scopeChip" class="px-4 mb-3">
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300"
+        >
+          <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
+          <span>{{ scopeChip }}</span>
+        </span>
+      </div>
+    </Transition>
 
     <!-- Main content -->
     <main class="flex-1 px-4 pb-4">
-      <div
-        v-if="restaurant"
-        class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-2xl shadow-orange-500/15 transition-opacity duration-200"
-        :class="rerolling ? 'opacity-50' : 'opacity-100'"
-      >
+      <Transition name="reroll" mode="out-in">
+        <div
+          v-if="restaurant"
+          :key="restaurant.id"
+          class="rounded-2xl bg-slate-800 border border-slate-700 p-5 shadow-2xl shadow-orange-500/15"
+        >
         <!-- Name + price -->
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -64,7 +67,7 @@
         </div>
 
         <!-- Context badges: only show narrowing ones -->
-        <div v-if="contextBadges.length" class="mt-3 flex flex-wrap gap-1.5">
+        <div v-if="contextBadges.length" class="mt-3 flex flex-wrap gap-2">
           <span
             v-for="b in contextBadges"
             :key="b.label"
@@ -104,7 +107,7 @@
         <!-- Tags -->
         <div
           v-if="restaurant.tags.length"
-          class="mt-5 flex flex-wrap gap-1.5"
+          class="mt-5 flex flex-wrap gap-2"
         >
           <span
             v-for="t in restaurant.tags"
@@ -122,7 +125,8 @@
         >
           {{ restaurant.notes }}
         </p>
-      </div>
+        </div>
+      </Transition>
 
       <p
         v-if="inlineMessage"
@@ -144,7 +148,12 @@
         class="w-full py-3.5 rounded-2xl font-semibold text-base text-slate-100 bg-slate-900 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 inline-flex items-center justify-center gap-2"
         @click="onTryAnother"
       >
-        <UIcon name="i-heroicons-arrow-path" class="w-5 h-5" aria-hidden="true" />
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="w-5 h-5 transition-transform duration-300"
+          :class="rerolling && 'rotate-180'"
+          aria-hidden="true"
+        />
         Re-roll
       </button>
     </div>
@@ -179,56 +188,8 @@ const headerTitle = computed(() => {
   return m === 'dinner' ? "Tonight's pick" : 'Lunch pick'
 })
 
-const withLabelMap: Record<string, string> = {
-  solo: 'Solo',
-  date: 'Date',
-  colleague: 'Work lunch',
-  family: 'Family',
-}
-const serviceLabelMap: Record<string, string> = {
-  'dine-in': 'Dine-in',
-  'takeaway': 'Takeaway',
-}
-const orderingLabelMap: Record<string, string> = {
-  individual: 'Individual',
-  shared: 'Shared',
-}
-const payLabelMap: Record<string, string> = {
-  split: 'Split',
-  treat: 'Treat',
-}
-
-const filterSummary = computed(() => {
-  const parts: string[] = []
-  if (restaurantsStore.priceFilters.length > 0) {
-    parts.push(
-      restaurantsStore.priceFilters
-        .slice()
-        .sort((a, b) => a - b)
-        .map((p) => '$'.repeat(p))
-        .join('/'),
-    )
-  }
-  if (restaurantsStore.withFilters.length > 0) {
-    parts.push(restaurantsStore.withFilters.map((w) => withLabelMap[w]).join('/'))
-  }
-  if (restaurantsStore.serviceFilters.length !== 2) {
-    parts.push(restaurantsStore.serviceFilters.map((s) => serviceLabelMap[s]).join('/'))
-  }
-  if (restaurantsStore.orderingFilters.length > 0) {
-    parts.push(restaurantsStore.orderingFilters.map((o) => orderingLabelMap[o]).join('/'))
-  }
-  if (restaurantsStore.payFilters.length > 0) {
-    parts.push(restaurantsStore.payFilters.map((p) => payLabelMap[p]).join('/'))
-  }
-  if (restaurantsStore.cuisineFilters.length > 0) {
-    parts.push(restaurantsStore.cuisineFilters.join(', '))
-  }
-  return parts.join(' · ')
-})
-
 const scopeChip = computed(() => {
-  const filterText = filterSummary.value
+  const filterText = restaurantsStore.filterSummary
   const area = areaParam.value
   if (!filterText && !area) return ''
   if (filterText && area) return `${filterText} · ${area}`
@@ -369,7 +330,7 @@ function onTryAnother(): void {
   refreshLastVisited()
   setTimeout(() => {
     rerolling.value = false
-  }, 200)
+  }, 300)
 }
 
 watch(

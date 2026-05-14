@@ -1,25 +1,27 @@
 <template>
   <ClientOnly>
-    <div
-      v-if="show"
-      class="mx-4 mt-3 flex items-start gap-2.5 rounded-2xl bg-slate-800 border border-slate-700 px-3.5 py-2.5"
-    >
-      <UIcon
-        name="i-heroicons-arrow-up-on-square"
-        class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
-        aria-hidden="true"
-      />
-      <p class="flex-1 text-xs text-slate-300 leading-relaxed">
-        Install LunchSpin: tap Share → Add to Home Screen
-      </p>
-      <button
-        class="shrink-0 p-1 -m-1 text-slate-400 hover:text-slate-200 transition-colors"
-        aria-label="Dismiss install hint"
-        @click="dismiss"
+    <Transition name="collapse">
+      <div
+        v-if="show"
+        class="mx-4 mt-3 flex items-start gap-2.5 rounded-2xl bg-slate-800 border border-slate-700 px-3.5 py-2.5"
       >
-        <UIcon name="i-heroicons-x-mark" class="w-4 h-4" aria-hidden="true" />
-      </button>
-    </div>
+        <UIcon
+          name="i-heroicons-arrow-up-on-square"
+          class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
+          aria-hidden="true"
+        />
+        <p class="flex-1 text-xs text-slate-300 leading-relaxed">
+          Install LunchSpin: tap Share → Add to Home Screen
+        </p>
+        <button
+          class="shrink-0 p-1 -m-1 text-slate-400 hover:text-slate-200 transition-colors"
+          aria-label="Dismiss install hint"
+          @click="dismiss"
+        >
+          <UIcon name="i-heroicons-x-mark" class="w-4 h-4" aria-hidden="true" />
+        </button>
+      </div>
+    </Transition>
   </ClientOnly>
 </template>
 

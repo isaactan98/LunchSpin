@@ -36,6 +36,25 @@ const ALLOWED_WITH: ReadonlySet<string> = new Set(['solo', 'date', 'colleague', 
 const ALLOWED_ORDERING: ReadonlySet<string> = new Set(['individual', 'shared'])
 const ALLOWED_PAY: ReadonlySet<string> = new Set(['split', 'treat'])
 
+const WITH_LABEL_MAP: Record<string, string> = {
+  solo: 'Solo',
+  date: 'Date',
+  colleague: 'Work lunch',
+  family: 'Family',
+}
+const SERVICE_LABEL_MAP: Record<string, string> = {
+  'dine-in': 'Dine-in',
+  'takeaway': 'Takeaway',
+}
+const ORDERING_LABEL_MAP: Record<string, string> = {
+  individual: 'Individual',
+  shared: 'Shared',
+}
+const PAY_LABEL_MAP: Record<string, string> = {
+  split: 'Split',
+  treat: 'Treat',
+}
+
 interface VisitRecord {
   id: string
   date: string
@@ -119,6 +138,36 @@ export const useRestaurantsStore = defineStore('restaurants', {
       const set = new Set<string>()
       this.visible.forEach((r) => r.cuisine.forEach((c) => set.add(c)))
       return Array.from(set).sort()
+    },
+
+    /** Human-readable summary of active filters. Empty if none. */
+    filterSummary(state): string {
+      const parts: string[] = []
+      if (state.priceFilters.length > 0) {
+        parts.push(
+          state.priceFilters
+            .slice()
+            .sort((a, b) => a - b)
+            .map((p) => '$'.repeat(p))
+            .join('/'),
+        )
+      }
+      if (state.withFilters.length > 0) {
+        parts.push(state.withFilters.map((w) => WITH_LABEL_MAP[w] ?? w).join('/'))
+      }
+      if (state.serviceFilters.length !== 2) {
+        parts.push(state.serviceFilters.map((s) => SERVICE_LABEL_MAP[s] ?? s).join('/'))
+      }
+      if (state.orderingFilters.length > 0) {
+        parts.push(state.orderingFilters.map((o) => ORDERING_LABEL_MAP[o] ?? o).join('/'))
+      }
+      if (state.payFilters.length > 0) {
+        parts.push(state.payFilters.map((p) => PAY_LABEL_MAP[p] ?? p).join('/'))
+      }
+      if (state.cuisineFilters.length > 0) {
+        parts.push(state.cuisineFilters.join(', '))
+      }
+      return parts.join(' · ')
     },
 
     /** Returns true if any optional filter is currently applied */
