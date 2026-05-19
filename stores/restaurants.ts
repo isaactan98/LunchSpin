@@ -85,7 +85,7 @@ interface RestaurantsState {
   priceFilters: (1 | 2 | 3)[]
   /** Optional cuisine filters — empty = all */
   cuisineFilters: string[]
-  /** Service filters — defaults to both modes (must be non-empty) */
+  /** Service filters — empty = no filter */
   serviceFilters: ServiceMode[]
   /** Suitable-for filters — empty = no filter */
   withFilters: SuitableFor[]
@@ -93,6 +93,8 @@ interface RestaurantsState {
   orderingFilters: ('individual' | 'shared')[]
   /** Pay-style filters — empty = no filter */
   payFilters: ('split' | 'treat')[]
+  /** Number of recently-visited candidates skipped during the last pick (0 if none) */
+  lastPickSkippedRecent: number
 }
 
 function detectMeal(): MealType {
@@ -112,10 +114,11 @@ export const useRestaurantsStore = defineStore('restaurants', {
     lastPickedMeal: null,
     priceFilters: [],
     cuisineFilters: [],
-    serviceFilters: ['dine-in', 'takeaway'],
+    serviceFilters: [],
     withFilters: [],
     orderingFilters: [],
     payFilters: [],
+    lastPickSkippedRecent: 0,
   }),
 
   getters: {
@@ -155,7 +158,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
       if (state.withFilters.length > 0) {
         parts.push(state.withFilters.map((w) => WITH_LABEL_MAP[w] ?? w).join('/'))
       }
-      if (state.serviceFilters.length !== 2) {
+      if (state.serviceFilters.length > 0) {
         parts.push(state.serviceFilters.map((s) => SERVICE_LABEL_MAP[s] ?? s).join('/'))
       }
       if (state.orderingFilters.length > 0) {
@@ -165,9 +168,9 @@ export const useRestaurantsStore = defineStore('restaurants', {
         parts.push(state.payFilters.map((p) => PAY_LABEL_MAP[p] ?? p).join('/'))
       }
       if (state.cuisineFilters.length > 0) {
-        parts.push(state.cuisineFilters.join(', '))
+        parts.push(state.cuisineFilters.join('/'))
       }
-      return parts.join(' · ')
+      return parts.join(' + ')
     },
 
     /** Returns true if any optional filter is currently applied */
@@ -178,7 +181,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
         || state.withFilters.length > 0
         || state.orderingFilters.length > 0
         || state.payFilters.length > 0
-        || state.serviceFilters.length !== 2
+        || state.serviceFilters.length > 0
       )
     },
 
@@ -200,8 +203,8 @@ export const useRestaurantsStore = defineStore('restaurants', {
         if (priceFilters.length > 0 && !priceFilters.includes(r.price_range)) return false
         if (cuisineFilters.length > 0 && !r.cuisine.some((c) => cuisineFilters.includes(c))) return false
 
-        // service: restaurant must offer at least one of the selected services
-        if (!r.service.some((s) => serviceFilters.includes(s))) return false
+        // service: if user selected any, restaurant must offer at least one of them
+        if (serviceFilters.length > 0 && !r.service.some((s) => serviceFilters.includes(s))) return false
 
         // with: if user selected any, restaurant must support at least one of them
         if (withFilters.length > 0 && !r.suitable_for.some((w) => withFilters.includes(w))) return false
@@ -305,8 +308,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
           const valid = parsed.serviceFilters.filter(
             (v): v is ServiceMode => typeof v === 'string' && ALLOWED_SERVICES.has(v),
           ) as ServiceMode[]
-          // Service must be non-empty; fall back to default if empty after validation
-          this.serviceFilters = valid.length > 0 ? valid : ['dine-in', 'takeaway']
+          this.serviceFilters = valid
         }
 
         if (Array.isArray(parsed.withFilters)) {
@@ -380,13 +382,8 @@ export const useRestaurantsStore = defineStore('restaurants', {
 
     toggleServiceFilter(s: ServiceMode) {
       const idx = this.serviceFilters.indexOf(s)
-      if (idx === -1) {
-        this.serviceFilters.push(s)
-      } else {
-        // Refuse to leave empty
-        if (this.serviceFilters.length <= 1) return
-        this.serviceFilters.splice(idx, 1)
-      }
+      if (idx === -1) this.serviceFilters.push(s)
+      else this.serviceFilters.splice(idx, 1)
     },
 
     toggleWithFilter(w: SuitableFor) {
@@ -410,7 +407,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
     clearFilters() {
       this.priceFilters = []
       this.cuisineFilters = []
-      this.serviceFilters = ['dine-in', 'takeaway']
+      this.serviceFilters = []
       this.withFilters = []
       this.orderingFilters = []
       this.payFilters = []
@@ -425,10 +422,14 @@ export const useRestaurantsStore = defineStore('restaurants', {
       let pool = this.availableNow
       if (area) pool = pool.filter((r) => r.area === area)
 
-      if (pool.length === 0) return null
+      if (pool.length === 0) {
+        this.lastPickSkippedRecent = 0
+        return null
+      }
       if (pool.length === 1) {
         this.lastPickedId = pool[0].id
         this.lastPickedMeal = detectMeal()
+        this.lastPickSkippedRecent = 0
         return pool[0]
       }
 
@@ -440,6 +441,9 @@ export const useRestaurantsStore = defineStore('restaurants', {
       const recentIds = new Set(getRecentlyVisitedIds())
       const notRecent = working.filter((r) => !recentIds.has(r.id))
       const choices = notRecent.length > 0 ? notRecent : working
+      // Track how many recent visits were skipped (only meaningful when we actually skipped them)
+      this.lastPickSkippedRecent
+        = notRecent.length > 0 ? working.length - notRecent.length : 0
 
       const pick = choices[Math.floor(Math.random() * choices.length)]
       this.lastPickedId = pick.id

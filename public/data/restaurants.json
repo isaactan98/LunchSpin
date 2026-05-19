@@ -34,7 +34,6 @@
       ],
       "ordering_style": "individual",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -153,7 +152,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -312,7 +310,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague"
       ],
       "pay_style": "split"
@@ -429,7 +426,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -749,7 +745,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -785,7 +780,7 @@
       "service": [
         "dine-in"
       ],
-      "ordering_style": "individual",
+      "ordering_style": "shared",
       "suitable_for": [
         "date",
         "colleague"
@@ -1142,7 +1137,6 @@
       "ordering_style": "both",
       "suitable_for": [
         "solo",
-        "date",
         "colleague"
       ],
       "pay_style": "split"
@@ -1343,7 +1337,8 @@
       "suitable_for": [
         "solo",
         "date",
-        "family"
+        "family",
+        "colleague"
       ],
       "pay_style": "split"
     },
@@ -1616,7 +1611,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -2128,7 +2122,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -2525,7 +2518,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -2606,7 +2598,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague"
       ],
       "pay_style": "split"
@@ -2764,7 +2755,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -2966,7 +2956,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -3045,7 +3034,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -3085,7 +3073,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -4563,7 +4550,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -4682,7 +4668,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -5036,7 +5021,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -5241,7 +5225,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -5322,7 +5305,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -5523,7 +5505,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -5842,7 +5823,8 @@
       "suitable_for": [
         "solo",
         "date",
-        "colleague"
+        "colleague",
+        "family"
       ],
       "pay_style": "split"
     },
@@ -6041,7 +6023,6 @@
       "ordering_style": "both",
       "suitable_for": [
         "solo",
-        "date",
         "colleague"
       ],
       "pay_style": "split"
@@ -7236,7 +7217,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -7356,7 +7336,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],
@@ -8006,7 +7985,6 @@
       ],
       "ordering_style": "shared",
       "suitable_for": [
-        "date",
         "colleague",
         "family"
       ],

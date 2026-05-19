@@ -24,6 +24,20 @@
       </div>
     </Transition>
 
+    <p
+      v-if="restaurantsStore.lastPickSkippedRecent > 0"
+      class="px-4 -mt-2 mb-2 text-xs text-slate-500"
+    >
+      Avoiding {{ restaurantsStore.lastPickSkippedRecent }} place{{ restaurantsStore.lastPickSkippedRecent !== 1 ? 's' : '' }} you visited recently
+    </p>
+
+    <p
+      v-if="onlyOneMatch"
+      class="px-4 -mt-2 mb-2 text-xs text-amber-300"
+    >
+      Only 1 place matches your filters
+    </p>
+
     <!-- Main content -->
     <main class="flex-1 px-4 pb-4">
       <Transition name="reroll" mode="out-in">
@@ -78,6 +92,16 @@
           </span>
         </div>
 
+        <!-- Why this pick: chips matching each active filter dimension -->
+        <div v-if="matchedChips.length" class="mt-3 flex flex-wrap gap-1.5 items-center">
+          <span class="text-[10px] uppercase tracking-wide text-slate-500 mr-1 self-center">Matched:</span>
+          <span
+            v-for="chip in matchedChips"
+            :key="chip"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
+          >{{ chip }}</span>
+        </div>
+
         <!-- Open days (simplified) -->
         <p
           v-if="openDaysLine"
@@ -130,7 +154,8 @@
 
       <p
         v-if="inlineMessage"
-        class="mt-4 text-center text-sm text-rose-300"
+        class="mt-4 text-center text-sm"
+        :class="inlineMessageTone === 'success' ? 'text-emerald-300' : 'text-rose-300'"
       >
         {{ inlineMessage }}
       </p>
@@ -156,6 +181,13 @@
         />
         Re-roll
       </button>
+      <button
+        v-if="areaParam"
+        class="w-full py-2 text-xs text-slate-400 hover:text-orange-300 transition-colors"
+        @click="onTryAnywhere"
+      >
+        Try anywhere instead →
+      </button>
     </div>
   </div>
 </template>
@@ -170,6 +202,7 @@ const restaurantsStore = useRestaurantsStore()
 const { markVisited, getLastVisited, isRecentlyVisited } = useVisitHistory()
 
 const inlineMessage = ref<string>('')
+const inlineMessageTone = ref<'error' | 'success'>('error')
 const rerolling = ref(false)
 const lastVisitedDate = ref<string | null>(null)
 
@@ -192,8 +225,8 @@ const scopeChip = computed(() => {
   const filterText = restaurantsStore.filterSummary
   const area = areaParam.value
   if (!filterText && !area) return ''
-  if (filterText && area) return `${filterText} · ${area}`
-  if (filterText) return `${filterText} · anywhere`
+  if (filterText && area) return `${filterText} + ${area}`
+  if (filterText) return `${filterText} + anywhere`
   return `from ${area}`
 })
 
@@ -249,6 +282,74 @@ const contextBadges = computed<ContextBadge[]>(() => {
 const priceLabel = computed(() => {
   if (!restaurant.value) return ''
   return '$'.repeat(restaurant.value.price_range)
+})
+
+const WITH_LABEL: Record<string, string> = {
+  solo: 'Solo',
+  date: 'Date',
+  colleague: 'Work lunch',
+  family: 'Family',
+}
+const SERVICE_LABEL: Record<string, string> = {
+  'dine-in': 'Dine-in',
+  'takeaway': 'Takeaway',
+}
+
+const matchedChips = computed<string[]>(() => {
+  const r = restaurant.value
+  if (!r) return []
+  const chips: string[] = []
+
+  if (restaurantsStore.priceFilters.length > 0
+    && restaurantsStore.priceFilters.includes(r.price_range)) {
+    chips.push('$'.repeat(r.price_range))
+  }
+
+  if (restaurantsStore.withFilters.length > 0) {
+    for (const w of restaurantsStore.withFilters) {
+      if (r.suitable_for.includes(w)) chips.push(WITH_LABEL[w] ?? w)
+    }
+  }
+
+  if (restaurantsStore.serviceFilters.length > 0) {
+    for (const s of restaurantsStore.serviceFilters) {
+      if (r.service.includes(s)) chips.push(SERVICE_LABEL[s] ?? s)
+    }
+  }
+
+  if (restaurantsStore.orderingFilters.length > 0) {
+    if (r.ordering_style === 'both') {
+      // Flexible — surface whichever filter the user picked
+      for (const o of restaurantsStore.orderingFilters) {
+        chips.push(o === 'individual' ? 'Individual (flexible)' : 'Shared (flexible)')
+      }
+    } else if (restaurantsStore.orderingFilters.includes(r.ordering_style)) {
+      chips.push(r.ordering_style === 'individual' ? 'Individual' : 'Shared')
+    }
+  }
+
+  if (restaurantsStore.payFilters.length > 0) {
+    if (r.pay_style === 'either') {
+      for (const p of restaurantsStore.payFilters) {
+        chips.push(p === 'split' ? 'Split (flexible)' : 'Treat (flexible)')
+      }
+    } else if (restaurantsStore.payFilters.includes(r.pay_style)) {
+      chips.push(r.pay_style === 'split' ? 'Split' : 'Treat')
+    }
+  }
+
+  if (restaurantsStore.cuisineFilters.length > 0) {
+    for (const c of r.cuisine) {
+      if (restaurantsStore.cuisineFilters.includes(c)) chips.push(c)
+    }
+  }
+
+  return chips
+})
+
+const onlyOneMatch = computed(() => {
+  if (!restaurantsStore.hasActiveFilters) return false
+  return restaurantsStore.availableNow.length === 1
 })
 
 const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
@@ -314,11 +415,34 @@ function onLetsGo(): void {
   if (import.meta.client) {
     window.open(url, '_blank')
   }
-  router.push('/')
+  // Refresh "last visited" inline (now today) and flash a brief saved confirmation.
+  refreshLastVisited()
+  inlineMessageTone.value = 'success'
+  inlineMessage.value = 'Saved to recent visits'
+  setTimeout(() => {
+    if (inlineMessage.value === 'Saved to recent visits') inlineMessage.value = ''
+  }, 1800)
+}
+
+function onTryAnywhere(): void {
+  inlineMessage.value = ''
+  inlineMessageTone.value = 'error'
+  rerolling.value = true
+  const pick = restaurantsStore.pickRandom()
+  if (!pick) {
+    inlineMessage.value = 'No places match your filters'
+  }
+  refreshLastVisited()
+  // Drop the ?area= so subsequent re-rolls also widen scope
+  router.replace({ path: '/result' })
+  setTimeout(() => {
+    rerolling.value = false
+  }, 300)
 }
 
 function onTryAnother(): void {
   inlineMessage.value = ''
+  inlineMessageTone.value = 'error'
   rerolling.value = true
   const currentId = restaurantsStore.lastPickedId
   const pick = restaurantsStore.pickRandom(areaParam.value)

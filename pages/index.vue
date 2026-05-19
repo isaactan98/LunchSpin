@@ -78,6 +78,13 @@
             >
               Clear all filters
             </button>
+            <p
+              v-if="relaxSuggestion"
+              class="text-xs text-slate-400 mt-2 text-center"
+            >
+              Remove <span class="text-orange-300 font-medium">{{ relaxSuggestion.label }}</span>
+              to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}
+            </p>
             <!-- Removable active-filter chips -->
             <div class="mt-3 flex flex-wrap gap-1.5 justify-center">
               <button
@@ -180,8 +187,8 @@
             </div>
           </div>
 
-          <!-- Service / Ordering / Payment (compact 3-col grid) -->
-          <div class="grid grid-cols-3 gap-3">
+          <!-- Service / Ordering / Payment (compact 3-col grid; 2-col on narrow screens) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
               <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Service</h3>
               <div class="flex flex-col gap-1.5">
@@ -254,7 +261,13 @@
           <!-- Cuisine -->
           <div class="pt-4 mt-4 border-t border-slate-800">
             <div class="flex items-center justify-between mb-1.5">
-              <h3 class="text-[11px] uppercase tracking-wide text-slate-400">Cuisine</h3>
+              <h3 class="text-[11px] uppercase tracking-wide text-slate-400">
+                Cuisine
+                <span
+                  v-if="store.cuisineFilters.length > 0"
+                  class="text-orange-300 font-normal lowercase"
+                >({{ store.cuisineFilters.length }})</span>
+              </h3>
               <button
                 v-if="store.cuisineFilters.length > 0"
                 class="text-xs text-orange-400 hover:text-orange-300 px-2 py-1 -mr-2 -my-1"
@@ -304,7 +317,7 @@
           <button
             v-for="area in sortedAreas"
             :key="area.name"
-            class="flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700"
+            class="flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
             :disabled="area.count === 0"
             @click="onPickArea(area.name)"
           >
@@ -342,11 +355,12 @@ const store = useRestaurantsStore()
 const errorMessage = ref<string>('')
 const filtersOpen = ref(store.hasActiveFilters)
 
-// If filters get rehydrated after first render, auto-open the panel once.
+// Open the panel when filters first become active; close it again when cleared.
 watch(
   () => store.hasActiveFilters,
   (next, prev) => {
     if (!prev && next) filtersOpen.value = true
+    if (prev && !next) filtersOpen.value = false
   },
 )
 
@@ -407,8 +421,7 @@ const activeFilterCount = computed(() => {
   n += store.withFilters.length
   n += store.orderingFilters.length
   n += store.payFilters.length
-  // Service counts only if not the default-both state
-  if (store.serviceFilters.length !== 2) n += store.serviceFilters.length
+  n += store.serviceFilters.length
   return n
 })
 
@@ -440,20 +453,12 @@ const activeFilterChips = computed<FilterChip[]>(() => {
     })
   }
 
-  // Service is only "active" when it's not the default (both)
-  if (store.serviceFilters.length !== 2) {
-    for (const s of store.serviceFilters) {
-      chips.push({
-        key: `service:${s}`,
-        label: serviceLabelMap[s] ?? s,
-        // Re-add the missing service mode to restore default (avoid empty state)
-        remove: () => {
-          const other: 'dine-in' | 'takeaway' = s === 'dine-in' ? 'takeaway' : 'dine-in'
-          if (!store.serviceFilters.includes(other)) store.toggleServiceFilter(other)
-          store.toggleServiceFilter(s)
-        },
-      })
-    }
+  for (const s of store.serviceFilters) {
+    chips.push({
+      key: `service:${s}`,
+      label: serviceLabelMap[s] ?? s,
+      remove: () => store.toggleServiceFilter(s),
+    })
   }
 
   for (const o of store.orderingFilters) {
@@ -488,6 +493,48 @@ interface AreaEntry {
   count: number
 }
 
+interface RelaxOption {
+  label: string
+  count: number
+}
+
+const relaxSuggestion = computed<RelaxOption | null>(() => {
+  if (totalAvailable.value > 0 || !store.hasActiveFilters) return null
+
+  // Snapshot current filters so we can swap one out at a time
+  const original = {
+    priceFilters: store.priceFilters,
+    cuisineFilters: store.cuisineFilters,
+    serviceFilters: store.serviceFilters,
+    withFilters: store.withFilters,
+    orderingFilters: store.orderingFilters,
+    payFilters: store.payFilters,
+  }
+
+  const dimensions: { key: keyof typeof original, label: string, active: boolean }[] = [
+    { key: 'priceFilters', label: 'Price', active: store.priceFilters.length > 0 },
+    { key: 'withFilters', label: 'With', active: store.withFilters.length > 0 },
+    { key: 'serviceFilters', label: 'Service', active: store.serviceFilters.length > 0 },
+    { key: 'orderingFilters', label: 'Ordering', active: store.orderingFilters.length > 0 },
+    { key: 'payFilters', label: 'Payment', active: store.payFilters.length > 0 },
+    { key: 'cuisineFilters', label: 'Cuisine', active: store.cuisineFilters.length > 0 },
+  ]
+
+  let best: RelaxOption | null = null
+  for (const dim of dimensions) {
+    if (!dim.active) continue
+    // Temporarily clear this dimension
+    ;(store as unknown as Record<string, unknown[]>)[dim.key] = []
+    const count = store.availableNow.length
+    // Restore
+    ;(store as unknown as Record<string, unknown[]>)[dim.key] = original[dim.key]
+    if (count > 0 && (best === null || count > best.count)) {
+      best = { label: dim.label, count }
+    }
+  }
+  return best
+})
+
 const sortedAreas = computed<AreaEntry[]>(() => {
   // Include all known areas; show 0 for ones with no matches under current filters
   const counts = store.areaCounts
@@ -504,6 +551,7 @@ function onSurpriseMe(): void {
     errorMessage.value = 'No places match — try different filters'
     return
   }
+  filtersOpen.value = false
   router.push('/result')
 }
 
@@ -514,6 +562,7 @@ function onPickArea(area: string): void {
     errorMessage.value = `Nothing in ${area} matches your filters`
     return
   }
+  filtersOpen.value = false
   router.push({ path: '/result', query: { area } })
 }
 </script>
