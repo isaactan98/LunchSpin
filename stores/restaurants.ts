@@ -95,6 +95,8 @@ interface RestaurantsState {
   payFilters: ('split' | 'treat')[]
   /** Number of recently-visited candidates skipped during the last pick (0 if none) */
   lastPickSkippedRecent: number
+  /** Session-only multi-area selection on the home grid (NOT persisted) */
+  selectedAreas: string[]
 }
 
 function detectMeal(): MealType {
@@ -119,6 +121,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
     orderingFilters: [],
     payFilters: [],
     lastPickSkippedRecent: 0,
+    selectedAreas: [],
   }),
 
   getters: {
@@ -171,6 +174,11 @@ export const useRestaurantsStore = defineStore('restaurants', {
         parts.push(state.cuisineFilters.join('/'))
       }
       return parts.join(' + ')
+    },
+
+    /** Returns true if the user has selected one or more areas on the home grid */
+    hasAreaSelection(state): boolean {
+      return state.selectedAreas.length > 0
     },
 
     /** Returns true if any optional filter is currently applied */
@@ -413,14 +421,30 @@ export const useRestaurantsStore = defineStore('restaurants', {
       this.payFilters = []
     },
 
+    toggleAreaSelection(area: string) {
+      const idx = this.selectedAreas.indexOf(area)
+      if (idx === -1) this.selectedAreas.push(area)
+      else this.selectedAreas.splice(idx, 1)
+    },
+
+    clearAreaSelection() {
+      this.selectedAreas = []
+    },
+
     /**
-     * Pick a random restaurant. If `area` is provided, restricts to that area.
+     * Pick a random restaurant. Scope can be:
+     *   - undefined / empty array → no area filter
+     *   - a single string         → restrict to that one area (legacy)
+     *   - a string array          → restrict to restaurants in any of those areas
      * Avoids returning the same restaurant as `lastPickedId` if possible.
      * Respects price + cuisine filters via availableNow.
      */
-    pickRandom(area?: string): Restaurant | null {
+    pickRandom(scope?: string | string[]): Restaurant | null {
+      const areas = typeof scope === 'string'
+        ? (scope.length > 0 ? [scope] : [])
+        : (scope ?? [])
       let pool = this.availableNow
-      if (area) pool = pool.filter((r) => r.area === area)
+      if (areas.length > 0) pool = pool.filter((r) => areas.includes(r.area))
 
       if (pool.length === 0) {
         this.lastPickSkippedRecent = 0

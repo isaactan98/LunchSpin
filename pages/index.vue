@@ -50,11 +50,14 @@
       <div class="px-4">
         <button
           class="group w-full py-5 rounded-2xl font-bold text-xl text-white shadow-lg shadow-orange-500/20 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 transition-all active:scale-95 disabled:opacity-50 disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
-          :disabled="totalAvailable === 0"
-          @click="onSurpriseMe"
+          :disabled="primaryDisabled"
+          @click="onPrimaryCta"
         >
           <span class="inline-flex items-center gap-2">
-            <template v-if="!store.hasActiveFilters">
+            <template v-if="store.hasAreaSelection">
+              <span>{{ areaCtaLabel }}</span>
+            </template>
+            <template v-else-if="!store.hasActiveFilters">
               <span
                 class="text-2xl inline-block transition-transform duration-150 group-active:rotate-12"
                 aria-hidden="true"
@@ -66,17 +69,36 @@
             </template>
           </span>
         </button>
+        <div v-if="store.hasAreaSelection" class="mt-2 flex justify-center">
+          <button
+            type="button"
+            class="text-xs text-slate-400 hover:text-orange-300 transition-colors px-2 py-1"
+            @click="store.clearAreaSelection"
+          >
+            Clear ({{ store.selectedAreas.length }} selected)
+          </button>
+        </div>
         <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
           {{ errorMessage }}
         </p>
         <Transition name="fade">
           <!-- Prominent clear-filters when nothing matches active filters -->
-          <div v-if="totalAvailable === 0 && store.hasActiveFilters" key="clear">
+          <div
+            v-if="(totalAvailable === 0 || (store.hasAreaSelection && selectedAvailable === 0)) && store.hasActiveFilters"
+            key="clear"
+          >
             <button
               class="mt-3 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
               @click="store.clearFilters"
             >
               Clear all filters
+            </button>
+            <button
+              v-if="store.hasAreaSelection"
+              class="mt-2 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
+              @click="store.clearAreaSelection"
+            >
+              Clear area selection
             </button>
             <p
               v-if="relaxSuggestion"
@@ -308,7 +330,7 @@
       <!-- Location grid -->
       <section class="px-4 mt-6 pb-6">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-medium text-slate-400">Or pick a place:</h2>
+          <h2 class="text-sm font-medium text-slate-400">Tap to pick one or more:</h2>
           <p v-if="store.hasActiveFilters" class="text-xs text-slate-400">
             {{ totalAvailable }} {{ totalAvailable === 1 ? 'place' : 'places' }} match
           </p>
@@ -317,10 +339,22 @@
           <button
             v-for="area in sortedAreas"
             :key="area.name"
-            class="flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
+            class="relative flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
+            :class="
+              store.selectedAreas.includes(area.name)
+                ? 'ring-2 ring-orange-500 border-orange-500/60 bg-slate-800/90'
+                : ''
+            "
             :disabled="area.count === 0"
-            @click="onPickArea(area.name)"
+            :aria-pressed="store.selectedAreas.includes(area.name)"
+            @click="onToggleArea(area.name)"
           >
+            <UIcon
+              v-if="store.selectedAreas.includes(area.name)"
+              name="i-heroicons-check-circle-20-solid"
+              class="absolute top-2 right-2 w-5 h-5 text-orange-400"
+              aria-hidden="true"
+            />
             <div class="flex items-center gap-1.5 text-orange-400">
               <UIcon name="i-heroicons-map-pin" class="w-4 h-4" aria-hidden="true" />
             </div>
@@ -544,6 +578,24 @@ const sortedAreas = computed<AreaEntry[]>(() => {
   })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
 })
 
+const selectedAvailable = computed(() => {
+  if (!store.hasAreaSelection) return totalAvailable.value
+  return store.availableNow.filter((r) => store.selectedAreas.includes(r.area)).length
+})
+
+const primaryDisabled = computed(() => {
+  if (store.hasAreaSelection) return selectedAvailable.value === 0
+  return totalAvailable.value === 0
+})
+
+const areaCtaLabel = computed(() => {
+  const sel = store.selectedAreas
+  if (sel.length === 0) return ''
+  if (sel.length === 1) return `Pick from ${sel[0]}`
+  if (sel.length === 2) return `Pick from ${sel[0]} & ${sel[1]}`
+  return `Pick from ${sel[0]} & ${sel.length - 1} more`
+})
+
 function onSurpriseMe(): void {
   errorMessage.value = ''
   const pick = store.pickRandom()
@@ -555,14 +607,26 @@ function onSurpriseMe(): void {
   router.push('/result')
 }
 
-function onPickArea(area: string): void {
+function onPrimaryCta(): void {
+  if (!store.hasAreaSelection) {
+    onSurpriseMe()
+    return
+  }
   errorMessage.value = ''
-  const pick = store.pickRandom(area)
+  const areas = store.selectedAreas.slice()
+  const pick = store.pickRandom(areas)
   if (!pick) {
-    errorMessage.value = `Nothing in ${area} matches your filters`
+    errorMessage.value = areas.length === 1
+      ? `Nothing in ${areas[0]} matches your filters`
+      : 'Nothing in your selected areas matches your filters'
     return
   }
   filtersOpen.value = false
-  router.push({ path: '/result', query: { area } })
+  router.push({ path: '/result', query: { areas: areas.join(',') } })
+}
+
+function onToggleArea(area: string): void {
+  errorMessage.value = ''
+  store.toggleAreaSelection(area)
 }
 </script>

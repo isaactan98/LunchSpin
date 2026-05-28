@@ -182,7 +182,7 @@
         Re-roll
       </button>
       <button
-        v-if="areaParam"
+        v-if="hasAreaScope"
         class="w-full py-2 text-xs text-slate-400 hover:text-orange-300 transition-colors"
         @click="onTryAnywhere"
       >
@@ -212,6 +212,18 @@ const areaParam = computed<string | undefined>(() => {
   return undefined
 })
 
+const selectedAreasFromRoute = computed<string[]>(() => {
+  const raw = route.query.areas
+  if (typeof raw === 'string' && raw.length > 0) {
+    return raw.split(',').map((s) => s.trim()).filter((s) => s.length > 0)
+  }
+  // Backward compat: legacy single-area param
+  if (areaParam.value) return [areaParam.value]
+  return []
+})
+
+const hasAreaScope = computed(() => selectedAreasFromRoute.value.length > 0)
+
 const restaurant = computed(() =>
   restaurantsStore.all.find(r => r.id === restaurantsStore.lastPickedId) ?? null,
 )
@@ -221,13 +233,20 @@ const headerTitle = computed(() => {
   return m === 'dinner' ? "Tonight's pick" : 'Lunch pick'
 })
 
+const areaScopeText = computed(() => {
+  const areas = selectedAreasFromRoute.value
+  if (areas.length === 0) return ''
+  if (areas.length === 1) return areas[0]
+  return areas.join(', ')
+})
+
 const scopeChip = computed(() => {
   const filterText = restaurantsStore.filterSummary
-  const area = areaParam.value
-  if (!filterText && !area) return ''
-  if (filterText && area) return `${filterText} + ${area}`
+  const areas = areaScopeText.value
+  if (!filterText && !areas) return ''
+  if (filterText && areas) return `${filterText} · from ${areas}`
   if (filterText) return `${filterText} + anywhere`
-  return `from ${area}`
+  return `from ${areas}`
 })
 
 interface ContextBadge {
@@ -445,7 +464,10 @@ function onTryAnother(): void {
   inlineMessageTone.value = 'error'
   rerolling.value = true
   const currentId = restaurantsStore.lastPickedId
-  const pick = restaurantsStore.pickRandom(areaParam.value)
+  const areas = selectedAreasFromRoute.value
+  const pick = areas.length > 0
+    ? restaurantsStore.pickRandom(areas)
+    : restaurantsStore.pickRandom()
   if (!pick) {
     inlineMessage.value = "That's the only option here!"
   } else if (pick.id === currentId) {
