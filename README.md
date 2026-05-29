@@ -6,12 +6,24 @@ Built as a self-hosted PWA — installs to your phone home screen, runs offline,
 
 ---
 
+## Screenshots
+
+| Home | Refine filters | Multi-area pick |
+|---|---|---|
+| <img src="public/screenshots/01-home.png" width="240" alt="Home screen — Surprise Me button + location grid"> | <img src="public/screenshots/02-refine.png" width="240" alt="Refine panel expanded with Price / With / Service / Ordering / Payment / Cuisine"> | <img src="public/screenshots/03-multi-area.png" width="240" alt="Two location cards selected — Pick from Yishun & Ang Mo Kio"> |
+
+| Result | Manage |
+|---|---|
+| <img src="public/screenshots/04-result.png" width="240" alt="Result page — restaurant card with Matched chips, Let's Go, Re-roll"> | <img src="public/screenshots/05-manage.png" width="240" alt="Manage screen — restaurants grouped by area with toggle"> |
+
+---
+
 ## What it does
 
 Open the app and you get two paths to a restaurant:
 
 - **🎲 Surprise Me** — random pick from everywhere
-- **Pick a place** — tap a mall card (JEM, Westgate, AMK Hub, Causeway Point, Northpoint City, Lot One, YewTee Point) and get a random pick from that mall
+- **Pick one or more places** — tap mall cards (JEM, Westgate, AMK Hub, Causeway Point, Northpoint City, Lot One, YewTee Point); tap multiple to pick from the union of those malls
 
 From the result page:
 - **Let's Go!** — opens Google Maps with the restaurant pre-queried, marks the place as visited
