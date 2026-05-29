@@ -3799,84 +3799,6 @@
       "pay_style": "split"
     },
     {
-      "id": "amk-xiang-xiang-hunan",
-      "name": "Xiang Xiang Hunan Cuisine",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Chinese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 3,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "leisure"
-      ],
-      "active": true,
-      "notes": "Bold Hunan flavours. Order to share.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
-    },
-    {
-      "id": "amk-fish-co",
-      "name": "Fish & Co.",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Western"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 3,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "leisure"
-      ],
-      "active": true,
-      "notes": "Western seafood. Generous fish & chips and platters.",
-      "service": [
-        "dine-in"
-      ],
-      "ordering_style": "both",
-      "suitable_for": [
-        "date",
-        "family"
-      ],
-      "pay_style": "treat"
-    },
-    {
       "id": "amk-jollibee",
       "name": "Jollibee",
       "area": "Ang Mo Kio",
@@ -4353,45 +4275,6 @@
       "pay_style": "split"
     },
     {
-      "id": "amk-bbq-box",
-      "name": "BBQ Box",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Korean"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Korean BBQ in a bento box. Quick lunch fix.",
-      "service": [
-        "dine-in"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
-    },
-    {
       "id": "amk-swee-choon-express",
       "name": "Swee Choon Express",
       "area": "Ang Mo Kio",
@@ -4746,47 +4629,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
-      "id": "amk-eat-pizza",
-      "name": "Eat Pizza",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Italian"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Casual pizzeria. Decent crust, fair prices.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
         "colleague",
         "family"
       ],
@@ -9732,47 +9574,6 @@
       "pay_style": "split"
     },
     {
-      "id": "lot1-sushiro-2",
-      "name": "Sushiro",
-      "area": "Chua Chu Kang",
-      "mall": "Lot One",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Conveyor sushi chain.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "lot1-yakiniku-shokudo",
       "name": "Yakiniku Shokudo",
       "area": "Chua Chu Kang",
@@ -10042,6 +9843,799 @@
       ],
       "active": true,
       "notes": "British-style scones, steaks, and tea.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "jem-moon-moon-food",
+      "name": "Moon Moon Food (双月)",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Michelin Bib Gourmand Taiwanese opened 2025. Signature peeled chilli pepper chicken and herbal soups.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "jem-nipong-naepong",
+      "name": "Nipong Naepong",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Korean"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant"
+      ],
+      "active": true,
+      "notes": "Korean noodle-and-pizza fusion concept. Try the spicy seafood jjamppong.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "both",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "jem-crave",
+      "name": "Crave",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Malay"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Nasi lemak with crispy fried chicken. Classic done well.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "jem-maki-san",
+      "name": "Maki-San",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Build-your-own maki rolls and salad bowls.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "jem-xw-western-grill",
+      "name": "XW Western Grill",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Western"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant"
+      ],
+      "active": true,
+      "notes": "Halal Western grill — chicken chops, steaks, pasta.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-yuen-kee-dumpling",
+      "name": "Yuen Kee Dumpling (袁记云饺)",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Viral handmade Cantonese dumplings, opened 2025. Affordable and addictive.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "westgate-gyukatsu-99",
+      "name": "Gyukatsu 99",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant"
+      ],
+      "active": true,
+      "notes": "Beef cutlet (gyukatsu) specialist. Sear each piece on the lava stone yourself.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-niku-niku-kome",
+      "name": "Niku Niku Oh!! Kome",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Japanese beef rice bowls. Quick and filling under $10.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-sushi-zushi",
+      "name": "Sushi Zushi",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant"
+      ],
+      "active": true,
+      "notes": "Casual sushi joint with bento sets and donburi.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-kushiya",
+      "name": "Kushiya",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "leisure"
+      ],
+      "active": true,
+      "notes": "Japanese yakitori skewers. Good with a beer after work.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-le-congee",
+      "name": "LE Congee & Noodle House",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Hong Kong-style congee and wonton noodles.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "cwp-mak-man-kee",
+      "name": "Mak Man Kee Wonton Noodles",
+      "area": "Woodlands",
+      "mall": "Causeway Point",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Michelin-approved HK wontons. SG-exclusive concept inside Food Republic, opened Jul 2025.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "north-chao-yue-xuan",
+      "name": "Chao Yue Xuan Dim Sum Express",
+      "area": "Yishun",
+      "mall": "Northpoint City",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Quick-service dim sum from ex–St Regis and Crystal Jade chefs.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "north-sichuan-chef",
+      "name": "Sichuan Chef",
+      "area": "Yishun",
+      "mall": "Northpoint City",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "group"
+      ],
+      "active": true,
+      "notes": "Sichuan classics. Mapo tofu, dry-fried green beans, kung pao chicken.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "north-talad-thai-banana",
+      "name": "Talad Thai Banana",
+      "area": "Yishun",
+      "mall": "Northpoint City",
+      "cuisine": [
+        "Thai"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Affordable Thai — boat noodles, pad thai, mango sticky rice.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "lot1-yuen-kee-dumpling",
+      "name": "Yuen Kee Dumpling (袁记云饺)",
+      "area": "Chua Chu Kang",
+      "mall": "Lot One",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Viral handmade dumplings, opened Sept 2025 inside Food Junction.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "yt-eastern-rice-dumpling",
+      "name": "Eastern Rice Dumpling",
+      "area": "Yew Tee",
+      "mall": "YewTee Point",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Bak chang and Chinese rice dumplings. Traditional Teochew style.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "yt-koo-kee",
+      "name": "Koo Kee",
+      "area": "Yew Tee",
+      "mall": "YewTee Point",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Kway chap and Teochew braised duck. Local favourite.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "yt-jian-bo",
+      "name": "Jian Bo Tiong Bahru Shui Kueh",
+      "area": "Yew Tee",
+      "mall": "YewTee Point",
+      "cuisine": [
+        "Hawker"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "hawker",
+        "quick",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Famous Teochew shui kueh with chye poh. Quick and beloved.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "yt-power-cafe",
+      "name": "Power Cafe",
+      "area": "Yew Tee",
+      "mall": "YewTee Point",
+      "cuisine": [
+        "Cafe"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "cafe",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Casual café with all-day breakfast, sandwiches, and bowls.",
       "service": [
         "dine-in",
         "takeaway"
