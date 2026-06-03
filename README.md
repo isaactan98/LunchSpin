@@ -8,13 +8,13 @@ Built as a self-hosted PWA — installs to your phone home screen, runs offline,
 
 ## Screenshots
 
-| Home | Refine filters | Multi-area pick |
+| First-run onboarding | Home | Refine filters |
 |---|---|---|
-| <img src="public/screenshots/01-home.png" width="240" alt="Home screen — Surprise Me button + location grid"> | <img src="public/screenshots/02-refine.png" width="240" alt="Refine panel expanded with Price / With / Service / Ordering / Payment / Cuisine"> | <img src="public/screenshots/03-multi-area.png" width="240" alt="Two location cards selected — Pick from Yishun & Ang Mo Kio"> |
+| <img src="public/screenshots/06-onboarding.png" width="240" alt="First-run onboarding card explaining the 3 main actions"> | <img src="public/screenshots/01-home.png" width="240" alt="Home screen — Surprise Me CTA with subtitle, Refine my pick row, location grid"> | <img src="public/screenshots/02-refine.png" width="240" alt="Refine panel expanded with Price / With / Service / Ordering / Payment / Cuisine"> |
 
-| Result | Manage |
-|---|---|
-| <img src="public/screenshots/04-result.png" width="240" alt="Result page — restaurant card with Matched chips, Let's Go, Re-roll"> | <img src="public/screenshots/05-manage.png" width="240" alt="Manage screen — restaurants grouped by area with toggle"> |
+| Multi-area pick | Result | My Places |
+|---|---|---|
+| <img src="public/screenshots/03-multi-area.png" width="240" alt="Yishun + Ang Mo Kio selected — Pick one from Yishun & Ang Mo Kio"> | <img src="public/screenshots/04-result.png" width="240" alt="Result — restaurant card with Matched chips, Let's Go, Try a different place"> | <img src="public/screenshots/05-manage.png" width="240" alt="My Places — restaurants grouped by area with Showing/Hidden toggle"> |
 
 ---
 
@@ -26,9 +26,9 @@ Open the app and you get two paths to a restaurant:
 - **Pick one or more places** — tap mall cards (JEM, Westgate, AMK Hub, Causeway Point, Northpoint City, Lot One, YewTee Point); tap multiple to pick from the union of those malls
 
 From the result page:
-- **Let's Go!** — opens Google Maps with the restaurant pre-queried, marks the place as visited
-- **Re-roll** — try another pick within the same scope
-- **Try anywhere instead** — when you came in via a mall, this widens the scope to all malls
+- **Let's Go! 🚀** — opens Google Maps with the restaurant pre-queried, marks the place as visited
+- **Try a different place** — re-roll within the same scope
+- **Pick from anywhere in Singapore** — when you came in via a mall, this widens the scope to all malls
 
 Optional **Refine** panel adds 6 filter dimensions:
 - **Price** — $ (under $10) · $$ ($10–$25) · $$$ ($25+)
@@ -65,10 +65,10 @@ Restaurant data lives in `public/data/restaurants.json` — fetched once on app 
 
 ---
 
-## Manage screen
+## My Places (Manage) screen
 
 A second tab lets you curate the list:
-- Toggle any restaurant on/off (saved to localStorage, doesn't edit the JSON)
+- Toggle any restaurant Showing / Hidden (saved to localStorage, doesn't edit the JSON)
 - Search by name or area
 - Filter view: All / Active / Hidden
 - See last-visited date per restaurant

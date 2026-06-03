@@ -11,6 +11,9 @@
       </div>
     </header>
 
+    <!-- First-run onboarding hints -->
+    <FirstRunHints />
+
     <!-- iOS install hint -->
     <IosInstallHint />
 
@@ -38,10 +41,10 @@
       </p>
       <NuxtLink
         to="/manage"
-        class="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-semibold text-sm transition-all active:scale-95"
+        class="mt-2 inline-flex items-center justify-center gap-2 py-4 px-6 w-full max-w-xs rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-semibold text-base transition-all active:scale-95"
       >
-        <UIcon name="i-heroicons-list-bullet" class="w-4 h-4" aria-hidden="true" />
-        Open Manage
+        <UIcon name="i-heroicons-list-bullet" class="w-5 h-5" aria-hidden="true" />
+        Open My Places
       </NuxtLink>
     </div>
 
@@ -65,17 +68,18 @@
               <span>Surprise Me</span>
             </template>
             <template v-else>
-              <span>Pick for me</span>
+              <span>Pick one for me</span>
             </template>
           </span>
+          <span class="block text-sm font-normal text-orange-100/90 mt-1">{{ ctaSubtitle }}</span>
         </button>
         <div v-if="store.hasAreaSelection" class="mt-2 flex justify-center">
           <button
             type="button"
-            class="text-xs text-slate-400 hover:text-orange-300 transition-colors px-2 py-1"
+            class="text-sm text-slate-300 underline-offset-2 hover:underline px-3 py-2 min-h-[44px]"
             @click="store.clearAreaSelection"
           >
-            Clear ({{ store.selectedAreas.length }} selected)
+            Clear {{ store.selectedAreas.length }} selected
           </button>
         </div>
         <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
@@ -102,22 +106,22 @@
             </button>
             <p
               v-if="relaxSuggestion"
-              class="text-xs text-slate-400 mt-2 text-center"
+              class="text-sm text-slate-400 mt-2 text-center"
             >
               Remove <span class="text-orange-300 font-medium">{{ relaxSuggestion.label }}</span>
               to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}
             </p>
             <!-- Removable active-filter chips -->
-            <div class="mt-3 flex flex-wrap gap-1.5 justify-center">
+            <div class="mt-3 flex flex-wrap gap-2 justify-center">
               <button
                 v-for="chip in activeFilterChips"
                 :key="chip.key"
-                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
+                class="inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
                 :aria-label="`Remove ${chip.label} filter`"
                 @click="chip.remove()"
               >
                 {{ chip.label }}
-                <UIcon name="i-heroicons-x-mark" class="w-3 h-3" aria-hidden="true" />
+                <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -126,54 +130,56 @@
 
       <!-- Filter section (optional, collapsible) -->
       <section class="px-4 mt-6">
-        <button
-          class="w-full flex items-center justify-between py-3 text-sm font-medium text-slate-300"
-          :aria-expanded="filtersOpen"
-          aria-controls="refine-panel"
-          @click="filtersOpen = !filtersOpen"
-        >
-          <span class="flex items-center gap-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl px-4">
+          <button
+            class="w-full flex items-center justify-between py-3 text-base font-medium text-white"
+            :aria-expanded="filtersOpen"
+            aria-controls="refine-panel"
+            @click="filtersOpen = !filtersOpen"
+          >
+            <span class="flex items-center gap-2">
+              <UIcon
+                name="i-heroicons-adjustments-horizontal"
+                class="w-5 h-5 text-orange-400"
+                aria-hidden="true"
+              />
+              <span>Refine my pick</span>
+              <span
+                v-if="store.hasActiveFilters"
+                class="text-sm px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {{ activeFilterCount }} active
+              </span>
+            </span>
             <UIcon
-              name="i-heroicons-adjustments-horizontal"
-              class="w-4 h-4 text-orange-400"
+              name="i-heroicons-chevron-down"
+              class="w-5 h-5 text-slate-400 transition-transform duration-200"
+              :class="filtersOpen && 'rotate-180'"
               aria-hidden="true"
             />
-            <span>Refine</span>
-            <span
-              v-if="store.hasActiveFilters"
-              class="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {{ activeFilterCount }} active
-            </span>
-          </span>
-          <UIcon
-            name="i-heroicons-chevron-down"
-            class="w-4 h-4 text-slate-400 transition-transform duration-200"
-            :class="filtersOpen && 'rotate-180'"
-            aria-hidden="true"
-          />
-        </button>
+          </button>
 
-        <!-- Collapsed filter summary -->
-        <p
-          v-if="!filtersOpen && store.hasActiveFilters"
-          class="mt-1 text-[11px] text-slate-400 line-clamp-2 leading-snug"
-        >
-          {{ store.filterSummary }}
-        </p>
+          <!-- Collapsed filter summary -->
+          <p
+            v-if="!filtersOpen && store.hasActiveFilters"
+            class="pb-3 -mt-1 text-sm text-slate-400 line-clamp-2 leading-snug"
+          >
+            {{ store.filterSummary }}
+          </p>
+        </div>
 
         <Transition name="collapse">
           <div v-if="filtersOpen" id="refine-panel" class="mt-3 space-y-4 pb-2">
           <!-- Price -->
           <div>
-            <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Price</h3>
-            <div class="flex gap-2">
+            <h3 class="text-sm font-semibold text-slate-200 mb-2">Price</h3>
+            <div class="flex gap-3">
               <button
                 v-for="opt in priceOptions"
                 :key="opt.value"
-                class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all active:scale-95"
+                class="flex-1 min-h-[48px] py-3 rounded-xl text-sm font-medium border transition-all active:scale-95"
                 :class="
                   store.priceFilters.includes(opt.value)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -182,7 +188,15 @@
                 :aria-pressed="store.priceFilters.includes(opt.value)"
                 @click="store.togglePriceFilter(opt.value)"
               >
-                <div class="font-bold">{{ opt.symbol }}</div>
+                <div class="font-bold inline-flex items-center justify-center gap-1">
+                  <UIcon
+                    v-if="store.priceFilters.includes(opt.value)"
+                    name="i-heroicons-check"
+                    class="w-4 h-4"
+                    aria-hidden="true"
+                  />
+                  <span>{{ opt.symbol }}</span>
+                </div>
                 <div class="text-xs opacity-75">{{ opt.label }}</div>
               </button>
             </div>
@@ -190,12 +204,12 @@
 
           <!-- With -->
           <div>
-            <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">With</h3>
-            <div class="flex flex-wrap gap-2">
+            <h3 class="text-sm font-semibold text-slate-200 mb-2">With</h3>
+            <div class="flex flex-wrap gap-3">
               <button
                 v-for="opt in withOptions"
                 :key="opt.value"
-                class="px-3.5 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95"
+                class="min-h-[48px] px-4 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center"
                 :class="
                   store.withFilters.includes(opt.value)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -204,6 +218,12 @@
                 :aria-pressed="store.withFilters.includes(opt.value)"
                 @click="store.toggleWithFilter(opt.value)"
               >
+                <UIcon
+                  v-if="store.withFilters.includes(opt.value)"
+                  name="i-heroicons-check"
+                  class="w-4 h-4 mr-1"
+                  aria-hidden="true"
+                />
                 {{ opt.label }}
               </button>
             </div>
@@ -212,12 +232,12 @@
           <!-- Service / Ordering / Payment (compact 3-col grid; 2-col on narrow screens) -->
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
-              <h3 class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5">Service</h3>
-              <div class="flex flex-col gap-1.5">
+              <h3 class="text-sm font-semibold text-slate-200 mb-2">Service</h3>
+              <div class="flex flex-col gap-2">
                 <button
                   v-for="opt in serviceOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
+                  class="w-full min-h-[48px] py-3 rounded-xl text-sm font-medium border transition-all active:scale-95 whitespace-nowrap inline-flex items-center justify-center"
                   :class="
                     store.serviceFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -226,22 +246,24 @@
                   :aria-pressed="store.serviceFilters.includes(opt.value)"
                   @click="store.toggleServiceFilter(opt.value)"
                 >
+                  <UIcon
+                    v-if="store.serviceFilters.includes(opt.value)"
+                    name="i-heroicons-check"
+                    class="w-4 h-4 mr-1"
+                    aria-hidden="true"
+                  />
                   {{ opt.label }}
                 </button>
               </div>
             </div>
             <div>
-              <h3
-                class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5"
-                title="Individual = own dish · Shared = order dishes to share, 叫料吃"
-              >
-                Ordering
-              </h3>
-              <div class="flex flex-col gap-1.5">
+              <h3 class="text-sm font-semibold text-slate-200 mb-2">Ordering</h3>
+              <p class="text-xs text-slate-400 mb-2">Own dish each, or share dishes family-style</p>
+              <div class="flex flex-col gap-2">
                 <button
                   v-for="opt in orderingOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
+                  class="w-full min-h-[48px] py-3 rounded-xl text-sm font-medium border transition-all active:scale-95 whitespace-nowrap inline-flex items-center justify-center"
                   :class="
                     store.orderingFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -250,22 +272,24 @@
                   :aria-pressed="store.orderingFilters.includes(opt.value)"
                   @click="store.toggleOrderingFilter(opt.value)"
                 >
+                  <UIcon
+                    v-if="store.orderingFilters.includes(opt.value)"
+                    name="i-heroicons-check"
+                    class="w-4 h-4 mr-1"
+                    aria-hidden="true"
+                  />
                   {{ opt.label }}
                 </button>
               </div>
             </div>
             <div>
-              <h3
-                class="text-[11px] uppercase tracking-wide text-slate-400 mb-1.5"
-                title="How the bill is handled"
-              >
-                Payment
-              </h3>
-              <div class="flex flex-col gap-1.5">
+              <h3 class="text-sm font-semibold text-slate-200 mb-2">Payment</h3>
+              <p class="text-xs text-slate-400 mb-2">Split the bill, or one person pays</p>
+              <div class="flex flex-col gap-2">
                 <button
                   v-for="opt in payOptions"
                   :key="opt.value"
-                  class="w-full py-3 rounded-xl text-xs font-medium border transition-all active:scale-95 whitespace-nowrap"
+                  class="w-full min-h-[48px] py-3 rounded-xl text-sm font-medium border transition-all active:scale-95 whitespace-nowrap inline-flex items-center justify-center"
                   :class="
                     store.payFilters.includes(opt.value)
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -274,6 +298,12 @@
                   :aria-pressed="store.payFilters.includes(opt.value)"
                   @click="store.togglePayFilter(opt.value)"
                 >
+                  <UIcon
+                    v-if="store.payFilters.includes(opt.value)"
+                    name="i-heroicons-check"
+                    class="w-4 h-4 mr-1"
+                    aria-hidden="true"
+                  />
                   {{ opt.label }}
                 </button>
               </div>
@@ -282,27 +312,27 @@
 
           <!-- Cuisine -->
           <div class="pt-4 mt-4 border-t border-slate-800">
-            <div class="flex items-center justify-between mb-1.5">
-              <h3 class="text-[11px] uppercase tracking-wide text-slate-400">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold text-slate-200">
                 Cuisine
                 <span
                   v-if="store.cuisineFilters.length > 0"
-                  class="text-orange-300 font-normal lowercase"
+                  class="text-orange-300 font-normal"
                 >({{ store.cuisineFilters.length }})</span>
               </h3>
               <button
                 v-if="store.cuisineFilters.length > 0"
-                class="text-xs text-orange-400 hover:text-orange-300 px-2 py-1 -mr-2 -my-1"
+                class="text-sm text-orange-400 hover:text-orange-300 px-2 py-1 -mr-2 -my-1"
                 @click="store.cuisineFilters = []"
               >
                 Clear
               </button>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-3">
               <button
                 v-for="cuisine in cuisines"
                 :key="cuisine"
-                class="px-3.5 py-3 rounded-full text-sm font-medium border transition-all active:scale-95"
+                class="min-h-[48px] px-4 py-3 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center"
                 :class="
                   store.cuisineFilters.includes(cuisine)
                     ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
@@ -311,6 +341,12 @@
                 :aria-pressed="store.cuisineFilters.includes(cuisine)"
                 @click="store.toggleCuisineFilter(cuisine)"
               >
+                <UIcon
+                  v-if="store.cuisineFilters.includes(cuisine)"
+                  name="i-heroicons-check"
+                  class="w-4 h-4 mr-1"
+                  aria-hidden="true"
+                />
                 {{ cuisine }}
               </button>
             </div>
@@ -329,9 +365,12 @@
 
       <!-- Location grid -->
       <section class="px-4 mt-6 pb-6">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-medium text-slate-400">Tap to pick one or more:</h2>
-          <p v-if="store.hasActiveFilters" class="text-xs text-slate-400">
+        <div class="flex items-start justify-between mb-3 gap-3">
+          <p class="text-base text-slate-200">
+            Or pick specific places
+            <span class="text-slate-400">(tap as many as you like)</span>
+          </p>
+          <p v-if="store.hasActiveFilters" class="text-sm text-slate-400 shrink-0">
             {{ totalAvailable }} {{ totalAvailable === 1 ? 'place' : 'places' }} match
           </p>
         </div>
@@ -342,7 +381,7 @@
             class="relative flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
             :class="
               store.selectedAreas.includes(area.name)
-                ? 'ring-2 ring-orange-500 border-orange-500/60 bg-slate-800/90'
+                ? 'ring-4 ring-orange-500 border-orange-500/60 bg-slate-800/90'
                 : ''
             "
             :disabled="area.count === 0"
@@ -351,8 +390,8 @@
           >
             <UIcon
               v-if="store.selectedAreas.includes(area.name)"
-              name="i-heroicons-check-circle-20-solid"
-              class="absolute top-2 right-2 w-5 h-5 text-orange-400"
+              name="i-heroicons-check"
+              class="absolute top-2 right-2 w-6 h-6 text-white bg-orange-500 rounded-full p-0.5"
               aria-hidden="true"
             />
             <div class="flex items-center gap-1.5 text-orange-400">
@@ -364,12 +403,12 @@
             >
               {{ area.name }}
             </div>
-            <div class="text-xs text-slate-400">
+            <div class="text-sm text-slate-400">
               {{ area.count }} {{ area.count === 1 ? 'place' : 'places' }}
             </div>
             <div
               v-if="area.count === 0 && store.hasActiveFilters"
-              class="text-[10px] text-slate-500"
+              class="text-xs text-slate-500"
             >
               Doesn't match filters
             </div>
@@ -423,12 +462,12 @@ const serviceOptions = [
 
 const orderingOptions = [
   { value: 'individual' as const, label: 'Individual' },
-  { value: 'shared' as const, label: 'Shared (叫料吃)' },
+  { value: 'shared' as const, label: 'Share dishes' },
 ]
 
 const payOptions = [
-  { value: 'split' as const, label: 'Split' },
-  { value: 'treat' as const, label: 'Treat' },
+  { value: 'split' as const, label: 'Everyone pays own' },
+  { value: 'treat' as const, label: 'One pays' },
 ]
 
 const withLabelMap: Record<string, string> = {
@@ -443,11 +482,11 @@ const serviceLabelMap: Record<string, string> = {
 }
 const orderingLabelMap: Record<string, string> = {
   individual: 'Individual',
-  shared: 'Shared',
+  shared: 'Share dishes',
 }
 const payLabelMap: Record<string, string> = {
-  split: 'Split',
-  treat: 'Treat',
+  split: 'Everyone pays own',
+  treat: 'One pays',
 }
 
 const activeFilterCount = computed(() => {
@@ -591,9 +630,15 @@ const primaryDisabled = computed(() => {
 const areaCtaLabel = computed(() => {
   const sel = store.selectedAreas
   if (sel.length === 0) return ''
-  if (sel.length === 1) return `Pick from ${sel[0]}`
-  if (sel.length === 2) return `Pick from ${sel[0]} & ${sel[1]}`
-  return `Pick from ${sel[0]} & ${sel.length - 1} more`
+  if (sel.length === 1) return `Pick one from ${sel[0]}`
+  if (sel.length === 2) return `Pick one from ${sel[0]} & ${sel[1]}`
+  return `Pick one from ${sel[0]} & ${sel.length - 1} more`
+})
+
+const ctaSubtitle = computed(() => {
+  if (store.hasAreaSelection) return 'Picks one place from these'
+  if (store.hasActiveFilters) return 'Picks one place that matches your filters'
+  return 'Picks one place at random'
 })
 
 function onSurpriseMe(): void {

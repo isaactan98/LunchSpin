@@ -5,7 +5,7 @@
       v-if="!isOnline"
       class="bg-amber-500/15 text-amber-300 border-b border-amber-500/30 text-center text-sm font-medium py-2 px-4 pt-[max(0.5rem,env(safe-area-inset-top))]"
     >
-      You're offline — using cached data
+      You're offline. The app still works with saved info.
     </div>
 
     <!-- Main content -->
@@ -44,7 +44,7 @@
             :class="route.path === '/manage' ? 'scale-x-100' : 'scale-x-0'"
           />
           <UIcon name="i-heroicons-list-bullet" class="w-5 h-5" aria-hidden="true" />
-          <span>Manage</span>
+          <span>My Places</span>
         </NuxtLink>
       </div>
     </nav>

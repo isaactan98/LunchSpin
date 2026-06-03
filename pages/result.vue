@@ -4,10 +4,11 @@
     <header class="px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 flex items-center gap-3">
       <NuxtLink
         to="/"
-        class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 hover:bg-slate-800 transition-all active:scale-95"
+        class="inline-flex items-center gap-2 h-12 px-4 rounded-full bg-slate-800 border border-slate-700 active:scale-95"
         aria-label="Back"
       >
         <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 text-slate-200" aria-hidden="true" />
+        <span class="text-base font-medium">Back</span>
       </NuxtLink>
       <h1 class="text-xl font-bold tracking-tight">{{ headerTitle }}</h1>
     </header>
@@ -16,7 +17,7 @@
     <Transition name="fade">
       <div v-if="scopeChip" :key="scopeChip" class="px-4 mb-3">
         <span
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
         >
           <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
           <span>{{ scopeChip }}</span>
@@ -24,19 +25,11 @@
       </div>
     </Transition>
 
-    <p
-      v-if="restaurantsStore.lastPickSkippedRecent > 0"
-      class="px-4 -mt-2 mb-2 text-xs text-slate-500"
-    >
-      Avoiding {{ restaurantsStore.lastPickSkippedRecent }} place{{ restaurantsStore.lastPickSkippedRecent !== 1 ? 's' : '' }} you visited recently
-    </p>
-
-    <p
-      v-if="onlyOneMatch"
-      class="px-4 -mt-2 mb-2 text-xs text-amber-300"
-    >
-      Only 1 place matches your filters
-    </p>
+    <div v-if="metaLine" class="px-4 mb-3">
+      <span class="inline-block bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1 text-sm text-slate-300">
+        {{ metaLine }}
+      </span>
+    </div>
 
     <!-- Main content -->
     <main class="flex-1 px-4 pb-4">
@@ -57,7 +50,7 @@
               <span v-if="restaurant.mall">{{ restaurant.mall }} · {{ restaurant.area }}</span>
               <span v-else>{{ restaurant.area }}</span>
             </p>
-            <p v-if="lastVisitedLabel" class="mt-1 text-xs text-slate-400">
+            <p v-if="lastVisitedLabel" class="mt-1 text-sm text-slate-400">
               {{ lastVisitedLabel }}
             </p>
           </div>
@@ -74,7 +67,7 @@
           <span
             v-for="c in restaurant.cuisine"
             :key="c"
-            class="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
+            class="px-2.5 py-1 rounded-full text-sm font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
           >
             {{ c }}
           </span>
@@ -85,7 +78,7 @@
           <span
             v-for="b in contextBadges"
             :key="b.label"
-            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-slate-900 border border-slate-700 text-slate-300"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium bg-slate-900 border border-slate-700 text-slate-300"
           >
             <UIcon :name="b.icon" class="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
             {{ b.label }}
@@ -93,19 +86,19 @@
         </div>
 
         <!-- Why this pick: chips matching each active filter dimension -->
-        <div v-if="matchedChips.length" class="mt-3 flex flex-wrap gap-1.5 items-center">
-          <span class="text-[10px] uppercase tracking-wide text-slate-500 mr-1 self-center">Matched:</span>
+        <div v-if="matchedChips.length" class="mt-3 flex flex-wrap gap-2 items-center">
+          <span class="text-sm font-semibold text-slate-300 mr-1 self-center">Matched:</span>
           <span
             v-for="chip in matchedChips"
             :key="chip"
-            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
           >{{ chip }}</span>
         </div>
 
         <!-- Open days (simplified) -->
         <p
           v-if="openDaysLine"
-          class="mt-5 text-xs text-slate-400"
+          class="mt-5 text-sm text-slate-400"
         >
           {{ openDaysLine }}
         </p>
@@ -114,14 +107,14 @@
         <div class="mt-5 flex gap-2">
           <span
             v-if="restaurant.meal.includes('lunch')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
           >
             <UIcon name="i-heroicons-sun" class="w-4 h-4 text-amber-400" aria-hidden="true" />
             Lunch
           </span>
           <span
             v-if="restaurant.meal.includes('dinner')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
           >
             <UIcon name="i-heroicons-moon" class="w-4 h-4 text-slate-300" aria-hidden="true" />
             Dinner
@@ -136,7 +129,7 @@
           <span
             v-for="t in restaurant.tags"
             :key="t"
-            class="px-2 py-0.5 rounded-md text-xs font-medium bg-slate-900 text-slate-400 border border-slate-700"
+            class="px-2 py-0.5 rounded-md text-sm font-medium bg-slate-900 text-slate-400 border border-slate-700"
           >
             #{{ t }}
           </span>
@@ -152,13 +145,24 @@
         </div>
       </Transition>
 
-      <p
+      <div
         v-if="inlineMessage"
-        class="mt-4 text-center text-sm"
-        :class="inlineMessageTone === 'success' ? 'text-emerald-300' : 'text-rose-300'"
+        class="mt-4 flex justify-center"
       >
-        {{ inlineMessage }}
-      </p>
+        <span
+          v-if="inlineMessageTone === 'success'"
+          class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-3 py-2 rounded-full text-sm"
+        >
+          <UIcon name="i-heroicons-check" class="w-4 h-4" aria-hidden="true" />
+          {{ inlineMessage }}
+        </span>
+        <span
+          v-else
+          class="text-center text-sm text-rose-300"
+        >
+          {{ inlineMessage }}
+        </span>
+      </div>
     </main>
 
     <!-- Action buttons (in normal flow above bottom nav) -->
@@ -170,7 +174,7 @@
         Let's Go! 🚀
       </button>
       <button
-        class="w-full py-3.5 rounded-2xl font-semibold text-base text-slate-100 bg-slate-900 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 inline-flex items-center justify-center gap-2"
+        class="w-full py-4 rounded-2xl font-semibold text-lg text-slate-100 bg-slate-900 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 inline-flex items-center justify-center gap-2"
         @click="onTryAnother"
       >
         <UIcon
@@ -179,14 +183,14 @@
           :class="rerolling && 'rotate-180'"
           aria-hidden="true"
         />
-        Re-roll
+        Try a different place
       </button>
       <button
         v-if="hasAreaScope"
-        class="w-full py-2 text-xs text-slate-400 hover:text-orange-300 transition-colors"
+        class="w-full py-3 rounded-2xl text-base font-medium text-slate-300 bg-transparent border border-slate-700 active:scale-95"
         @click="onTryAnywhere"
       >
-        Try anywhere instead →
+        Pick from anywhere in Singapore
       </button>
     </div>
   </div>
@@ -340,20 +344,20 @@ const matchedChips = computed<string[]>(() => {
     if (r.ordering_style === 'both') {
       // Flexible — surface whichever filter the user picked
       for (const o of restaurantsStore.orderingFilters) {
-        chips.push(o === 'individual' ? 'Individual (flexible)' : 'Shared (flexible)')
+        chips.push(o === 'individual' ? 'Individual (flexible)' : 'Share dishes (flexible)')
       }
     } else if (restaurantsStore.orderingFilters.includes(r.ordering_style)) {
-      chips.push(r.ordering_style === 'individual' ? 'Individual' : 'Shared')
+      chips.push(r.ordering_style === 'individual' ? 'Individual' : 'Share dishes')
     }
   }
 
   if (restaurantsStore.payFilters.length > 0) {
     if (r.pay_style === 'either') {
       for (const p of restaurantsStore.payFilters) {
-        chips.push(p === 'split' ? 'Split (flexible)' : 'Treat (flexible)')
+        chips.push(p === 'split' ? 'Everyone pays own (flexible)' : 'One pays (flexible)')
       }
     } else if (restaurantsStore.payFilters.includes(r.pay_style)) {
-      chips.push(r.pay_style === 'split' ? 'Split' : 'Treat')
+      chips.push(r.pay_style === 'split' ? 'Everyone pays own' : 'One pays')
     }
   }
 
@@ -369,6 +373,16 @@ const matchedChips = computed<string[]>(() => {
 const onlyOneMatch = computed(() => {
   if (!restaurantsStore.hasActiveFilters) return false
   return restaurantsStore.availableNow.length === 1
+})
+
+const metaLine = computed<string | null>(() => {
+  // Prefer the more-actionable single-match message when both signals fire
+  if (onlyOneMatch.value) return 'Only 1 place matches your filters'
+  const skipped = restaurantsStore.lastPickSkippedRecent
+  if (skipped > 0) {
+    return `Avoiding ${skipped} place${skipped !== 1 ? 's' : ''} you visited recently`
+  }
+  return null
 })
 
 const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const

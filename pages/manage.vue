@@ -5,8 +5,8 @@
       ref="headerEl"
       class="sticky top-0 z-20 bg-slate-950/80 backdrop-blur px-4 pt-[max(2rem,env(safe-area-inset-top))] pb-4"
     >
-      <h1 class="text-2xl font-bold text-white tracking-tight">Manage</h1>
-      <p class="text-slate-400 text-sm mt-1">Toggle restaurants on/off</p>
+      <h1 class="text-2xl font-bold text-white tracking-tight">My Places</h1>
+      <p class="text-slate-400 text-sm mt-1">Hide places you don't want to see</p>
 
       <!-- Search -->
       <div class="relative mt-4">
@@ -28,7 +28,7 @@
         <button
           v-for="tab in tabs"
           :key="tab.value"
-          class="flex-1 px-3 py-2 rounded-full text-xs font-medium transition-colors border"
+          class="flex-1 px-3 py-2 rounded-full text-sm font-medium transition-colors border"
           :class="
             filterMode === tab.value
               ? 'bg-orange-500 text-white border-orange-500'
@@ -41,7 +41,7 @@
       </div>
 
       <!-- Stats line -->
-      <p class="mt-3 text-xs text-slate-400">
+      <p class="mt-3 text-sm text-slate-400">
         {{ activeCount }} active · {{ hiddenCount }} hidden
       </p>
     </header>
@@ -74,7 +74,7 @@
         <p class="text-white font-semibold">No restaurants found</p>
         <p class="text-slate-400 text-sm">Try a different search or filter</p>
         <button
-          class="mt-2 text-orange-400 text-sm hover:text-orange-300"
+          class="mt-2 text-orange-400 text-base hover:text-orange-300"
           @click="clearFilters"
         >
           Clear filters
@@ -92,9 +92,9 @@
           class="sticky z-10 -mx-4 px-4 py-2 bg-slate-950 border-b border-slate-800"
           :style="{ top: stickyTop }"
         >
-          <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-300">
+          <h2 class="text-sm font-semibold text-slate-200">
             {{ group.area }}
-            <span class="text-slate-400 font-normal normal-case tracking-normal">· {{ group.items.length }}</span>
+            <span class="text-slate-400 font-normal">· {{ group.items.length }}</span>
           </h2>
         </div>
 
@@ -113,15 +113,9 @@
             <!-- Badges -->
             <span
               v-if="isRecentlyVisited(restaurant.id)"
-              class="absolute top-3 right-16 text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium"
+              class="absolute top-3 right-24 text-sm px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium"
             >
               Recent
-            </span>
-            <span
-              v-else-if="!isActive(restaurant.id)"
-              class="absolute top-3 right-16 text-xs px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/30 font-medium"
-            >
-              Hidden
             </span>
 
             <div class="flex items-start justify-between gap-3">
@@ -133,7 +127,7 @@
                   {{ restaurant.name }}
                 </h3>
                 <p
-                  class="text-xs mt-0.5"
+                  class="text-sm mt-0.5"
                   :class="isActive(restaurant.id) ? 'text-slate-400' : 'text-slate-500'"
                 >
                   {{ restaurant.cuisine.slice(0, 2).join(', ') }} · {{ '$'.repeat(restaurant.price_range) }}
@@ -175,7 +169,7 @@
                 <!-- Last visited -->
                 <p
                   v-if="lastVisited(restaurant.id)"
-                  class="text-xs text-slate-400 mt-2"
+                  class="text-sm text-slate-400 mt-2"
                 >
                   Last visited: {{ formatDate(lastVisited(restaurant.id)!) }}
                 </p>
@@ -183,17 +177,20 @@
 
               <!-- Toggle (wrapped for ≥44px hit area) -->
               <button
-                class="shrink-0 p-2 -m-2 inline-flex items-center justify-center"
+                class="shrink-0 p-2 -m-2 inline-flex items-center gap-2"
                 :aria-label="`Toggle ${restaurant.name}`"
                 :aria-pressed="isActive(restaurant.id)"
                 @click="toggleActive(restaurant.id)"
               >
+                <span class="text-sm font-semibold text-slate-300">
+                  {{ isActive(restaurant.id) ? 'Showing' : 'Hidden' }}
+                </span>
                 <span
-                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors"
                   :class="isActive(restaurant.id) ? 'bg-orange-500' : 'bg-slate-700'"
                 >
                   <span
-                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                    class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
                     :class="isActive(restaurant.id) ? 'translate-x-6' : 'translate-x-1'"
                   />
                 </span>

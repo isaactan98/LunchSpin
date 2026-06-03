@@ -10,8 +10,8 @@
           class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
           aria-hidden="true"
         />
-        <p class="flex-1 text-xs text-slate-300 leading-relaxed">
-          Install LunchSpin: tap Share → Add to Home Screen
+        <p class="flex-1 text-sm text-slate-300 leading-relaxed">
+          Add LunchSpin to your home screen: tap the Share icon (square with up-arrow) at the bottom, then 'Add to Home Screen'.
         </p>
         <button
           class="shrink-0 p-1 -m-1 text-slate-400 hover:text-slate-200 transition-colors"

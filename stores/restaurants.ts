@@ -48,11 +48,11 @@ const SERVICE_LABEL_MAP: Record<string, string> = {
 }
 const ORDERING_LABEL_MAP: Record<string, string> = {
   individual: 'Individual',
-  shared: 'Shared',
+  shared: 'Share dishes',
 }
 const PAY_LABEL_MAP: Record<string, string> = {
-  split: 'Split',
-  treat: 'Treat',
+  split: 'Everyone pays own',
+  treat: 'One pays',
 }
 
 interface VisitRecord {
