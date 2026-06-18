@@ -2210,46 +2210,6 @@
       "pay_style": "split"
     },
     {
-      "id": "cwp-pepper-lunch",
-      "name": "Pepper Lunch",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "DIY sizzling beef/chicken hotplate over rice.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "cwp-hot-tomato",
       "name": "Hot Tomato",
       "area": "Woodlands",
@@ -3640,47 +3600,6 @@
       "pay_style": "split"
     },
     {
-      "id": "amk-food-junction",
-      "name": "Food Junction",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Hawker",
-        "Multi-cuisine"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "hawker",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Large air-con food court. Plenty of local stalls.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "amk-pepper-lunch",
       "name": "Pepper Lunch",
       "area": "Ang Mo Kio",
@@ -4471,45 +4390,6 @@
         "family"
       ],
       "pay_style": "split"
-    },
-    {
-      "id": "amk-qi-le-chicken",
-      "name": "Qi Le Boneless Chicken Rice",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Chinese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Boneless Hainanese chicken rice. No bones to fuss with.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
     },
     {
       "id": "amk-popeyes",
@@ -8622,88 +8502,6 @@
         "family"
       ],
       "pay_style": "either"
-    },
-    {
-      "id": "cp-tenderfresh",
-      "name": "Tenderfresh",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Western"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Local fried chicken — sets and wings.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
-      "id": "amk-sushi-go",
-      "name": "Sushi-GO",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Conveyor sushi with robot servers.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
     },
     {
       "id": "amk-a-one-signature",
