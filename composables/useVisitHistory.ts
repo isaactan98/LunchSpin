@@ -82,6 +82,19 @@ export function useVisitHistory() {
     return last !== undefined && last >= threshold
   }
 
+  /** Number of visits recorded. */
+  function visitCount(): number {
+    return Object.keys(allVisitsRef.value).length
+  }
+
+  /** Wipe all visit history from localStorage and the reactive store. */
+  function clearAll() {
+    if (import.meta.client) {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+    allVisitsRef.value = {}
+  }
+
   return {
     allVisits: allVisitsRef,
     markVisited,
@@ -89,5 +102,7 @@ export function useVisitHistory() {
     getRecentlyVisited,
     getAllVisits,
     isRecentlyVisited,
+    visitCount,
+    clearAll,
   }
 }

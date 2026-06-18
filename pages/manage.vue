@@ -199,6 +199,21 @@
           </article>
         </TransitionGroup>
       </section>
+
+      <!-- Visit history reset -->
+      <section v-if="allVisits && Object.keys(allVisits).length > 0" class="mt-8 pt-6 border-t border-slate-800">
+        <h3 class="text-sm font-semibold text-slate-200 mb-2">Visit history</h3>
+        <p class="text-sm text-slate-400 mb-3">
+          {{ Object.keys(allVisits).length }} place{{ Object.keys(allVisits).length === 1 ? '' : 's' }} marked as visited. Clear this if you want LunchSpin to forget where you've been.
+        </p>
+        <button
+          type="button"
+          class="w-full py-3 rounded-2xl text-base font-semibold text-rose-300 bg-slate-900 border border-rose-500/40 hover:bg-rose-500/10 active:scale-95 transition-all min-h-[48px]"
+          @click="onClearVisitHistory"
+        >
+          Clear visit history
+        </button>
+      </section>
     </div>
   </div>
 </template>
@@ -232,7 +247,16 @@ interface AreaGroup {
 }
 
 const restaurantsStore = useRestaurantsStore()
-const { allVisits, isRecentlyVisited: checkRecent } = useVisitHistory()
+const { allVisits, isRecentlyVisited: checkRecent, visitCount, clearAll: clearVisitHistory } = useVisitHistory()
+
+function onClearVisitHistory() {
+  const count = visitCount()
+  if (count === 0) return
+  const msg = `Clear ${count} visited place${count === 1 ? '' : 's'}? This wipes the history of what you've tapped "Let's Go!" on.`
+  if (window.confirm(msg)) {
+    clearVisitHistory()
+  }
+}
 
 const search = ref('')
 const filterMode = ref<FilterMode>('all')

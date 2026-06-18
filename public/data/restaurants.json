@@ -1932,46 +1932,6 @@
       "pay_style": "split"
     },
     {
-      "id": "cwp-so-pho",
-      "name": "So Pho",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Vietnamese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Reliable pho and banh mi. Light, clean flavours.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "cwp-bali-thai",
       "name": "Bali Thai",
       "area": "Woodlands",
@@ -2512,46 +2472,6 @@
       ],
       "active": true,
       "notes": "Healthy poke bowls. Build your own with fresh ingredients.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
-      "id": "cwp-poulet",
-      "name": "Poulet",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Western"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant"
-      ],
-      "active": true,
-      "notes": "French-style rotisserie chicken with mushroom sauce.",
       "service": [
         "dine-in",
         "takeaway"
@@ -3123,45 +3043,6 @@
       "ordering_style": "individual",
       "suitable_for": [
         "solo",
-        "colleague"
-      ],
-      "pay_style": "split"
-    },
-    {
-      "id": "cwp-tokyo-shokudo",
-      "name": "Tokyo Shokudo",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant"
-      ],
-      "active": true,
-      "notes": "Casual Japanese sets. Hamburg, omurice, donburi.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
         "colleague"
       ],
       "pay_style": "split"
@@ -4476,47 +4357,6 @@
       "pay_style": "split"
     },
     {
-      "id": "amk-maki-san",
-      "name": "Maki-San",
-      "area": "Ang Mo Kio",
-      "mall": "AMK Hub",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Build-your-own maki rolls and salad bowls.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "amk-gong-yuan",
       "name": "Gong Yuan Ma La Tang",
       "area": "Ang Mo Kio",
@@ -5299,45 +5139,6 @@
       ],
       "active": true,
       "notes": "Japanese teishoku set meals. Grilled fish, katsu, free-flow rice.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague"
-      ],
-      "pay_style": "split"
-    },
-    {
-      "id": "north-suparakki-ramen",
-      "name": "Suparakki Ramen",
-      "area": "Yishun",
-      "mall": "Northpoint City",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant"
-      ],
-      "active": true,
-      "notes": "Casual ramen joint. Solid broths at fair prices.",
       "service": [
         "dine-in",
         "takeaway"
@@ -8305,46 +8106,6 @@
       "pay_style": "split"
     },
     {
-      "id": "cp-ah-ma-chi-mian",
-      "name": "Ah Ma Chi Mian",
-      "area": "Woodlands",
-      "mall": "Causeway Point",
-      "cuisine": [
-        "Chinese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "Hand-pulled noodles in clay-pot soups.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague"
-      ],
-      "pay_style": "split"
-    },
-    {
       "id": "cp-swensens",
       "name": "Swensen's",
       "area": "Woodlands",
@@ -9291,44 +9052,6 @@
         "family"
       ],
       "pay_style": "split"
-    },
-    {
-      "id": "lot1-yakiniku-shokudo",
-      "name": "Yakiniku Shokudo",
-      "area": "Chua Chu Kang",
-      "mall": "Lot One",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "leisure"
-      ],
-      "active": true,
-      "notes": "Affordable yakiniku grill.",
-      "service": [
-        "dine-in"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
     },
     {
       "id": "lot1-pizza-hut",
