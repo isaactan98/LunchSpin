@@ -1618,46 +1618,6 @@
       "pay_style": "split"
     },
     {
-      "id": "westgate-honolulu-cafe",
-      "name": "Honolulu Cafe",
-      "area": "Jurong East",
-      "mall": "Westgate",
-      "cuisine": [
-        "Chinese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 1,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "quick"
-      ],
-      "active": true,
-      "notes": "HK-style cafe. Polo buns, milk tea, baked rice.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
-    },
-    {
       "id": "westgate-poulet",
       "name": "Poulet",
       "area": "Jurong East",
@@ -1735,45 +1695,6 @@
         "family"
       ],
       "pay_style": "either"
-    },
-    {
-      "id": "westgate-tokyo-shokudo",
-      "name": "Tokyo Shokudo",
-      "area": "Jurong East",
-      "mall": "Westgate",
-      "cuisine": [
-        "Japanese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant"
-      ],
-      "active": true,
-      "notes": "Casual Japanese sets. Hamburg steaks, omurice, donburi.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "individual",
-      "suitable_for": [
-        "solo",
-        "date",
-        "colleague"
-      ],
-      "pay_style": "split"
     },
     {
       "id": "westgate-canton-paradise",
@@ -9653,46 +9574,6 @@
       "pay_style": "split"
     },
     {
-      "id": "jem-moon-moon-food",
-      "name": "Moon Moon Food (双月)",
-      "area": "Jurong East",
-      "mall": "JEM",
-      "cuisine": [
-        "Chinese"
-      ],
-      "meal": [
-        "lunch",
-        "dinner"
-      ],
-      "price_range": 2,
-      "open_days": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
-      ],
-      "tags": [
-        "restaurant",
-        "iconic"
-      ],
-      "active": true,
-      "notes": "Michelin Bib Gourmand Taiwanese opened 2025. Signature peeled chilli pepper chicken and herbal soups.",
-      "service": [
-        "dine-in",
-        "takeaway"
-      ],
-      "ordering_style": "shared",
-      "suitable_for": [
-        "date",
-        "colleague",
-        "family"
-      ],
-      "pay_style": "either"
-    },
-    {
       "id": "jem-nipong-naepong",
       "name": "Nipong Naepong",
       "area": "Jurong East",
@@ -10442,6 +10323,367 @@
       "suitable_for": [
         "solo",
         "date"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "jem-super-sushi",
+      "name": "Super Sushi",
+      "area": "Jurong East",
+      "mall": "JEM",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "New conveyor-belt sushi outlet opened May 2026 at JEM. Budget-friendly.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-oriental-kopi",
+      "name": "Oriental Kopi",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese",
+        "Malay"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "iconic"
+      ],
+      "active": true,
+      "notes": "Paradise Group HK-style kopitiam. Big draw with egg tarts and kaya toast.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "westgate-mun-zuk",
+      "name": "Mun Zuk",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "B2 congee specialist by Li Fang. Try the collagen porridge.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-gochi-so",
+      "name": "Gochi-So Shokudo",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Japanese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Japanese donburi and teishoku. Crispy katsu and rich curry sets.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-my-kampung",
+      "name": "My Kampung",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Malay"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Kampung-style local food stall.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-mincheng-bibimbap",
+      "name": "Mincheng Bibimbap",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Korean"
+      ],
+      "meal": [
+        "lunch"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Quick-service stone-bowl bibimbap.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "both",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-eighteen-plum",
+      "name": "Eighteen Plum",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 2,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "group"
+      ],
+      "active": true,
+      "notes": "Sichuan/regional Chinese restaurant. Order to share.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "shared",
+      "suitable_for": [
+        "date",
+        "colleague",
+        "family"
+      ],
+      "pay_style": "either"
+    },
+    {
+      "id": "westgate-xi-men-jie",
+      "name": "Xi Men Jie",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "Taiwanese-style street food and rice bowls.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
+      ],
+      "pay_style": "split"
+    },
+    {
+      "id": "westgate-ygf-malatang",
+      "name": "YGF Malatang",
+      "area": "Jurong East",
+      "mall": "Westgate",
+      "cuisine": [
+        "Chinese"
+      ],
+      "meal": [
+        "lunch",
+        "dinner"
+      ],
+      "price_range": 1,
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "tags": [
+        "restaurant",
+        "quick"
+      ],
+      "active": true,
+      "notes": "DIY skewer malatang chain. Pick ingredients, get them boiled.",
+      "service": [
+        "dine-in",
+        "takeaway"
+      ],
+      "ordering_style": "individual",
+      "suitable_for": [
+        "solo",
+        "date",
+        "colleague"
       ],
       "pay_style": "split"
     }
