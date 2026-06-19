@@ -1,58 +1,35 @@
 <template>
   <ClientOnly>
-    <Transition name="collapse">
+    <Transition name="fade">
       <div
         v-if="show"
-        class="mx-4 mt-3 rounded-2xl bg-slate-800 border border-slate-700 px-4 py-4"
+        class="px-4 mt-3"
+        role="status"
+        aria-live="polite"
       >
-        <div class="flex items-start justify-between gap-2 mb-3">
-          <h2 class="text-base font-semibold text-white">Welcome to LunchSpin</h2>
-          <button
-            class="shrink-0 p-1 -m-1 text-slate-400 hover:text-slate-200 transition-colors"
-            aria-label="Dismiss welcome hints"
-            @click="dismiss"
+        <div class="relative mx-auto max-w-xs">
+          <div
+            class="relative inline-flex w-full items-center justify-between gap-2 rounded-2xl bg-orange-500 text-white px-4 py-3 shadow-lg shadow-orange-500/30"
           >
-            <UIcon name="i-heroicons-x-mark" class="w-4 h-4" aria-hidden="true" />
-          </button>
+            <span class="inline-flex items-center gap-2 text-sm font-semibold">
+              <span aria-hidden="true">👇</span>
+              <span>Tap me. I'll pick lunch.</span>
+            </span>
+            <button
+              type="button"
+              class="shrink-0 p-1 -m-1 text-white/90 hover:text-white transition-colors"
+              aria-label="Dismiss hint"
+              @click="dismiss"
+            >
+              <UIcon name="i-heroicons-x-mark" class="w-4 h-4" aria-hidden="true" />
+            </button>
+            <!-- Speech-bubble tail pointing down at the Spin button below -->
+            <span
+              aria-hidden="true"
+              class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 rotate-45 bg-orange-500"
+            />
+          </div>
         </div>
-        <ul class="space-y-3">
-          <li class="flex items-start gap-3">
-            <UIcon
-              name="i-heroicons-light-bulb"
-              class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <p class="text-sm text-slate-200 leading-relaxed">
-              Tap the orange button — we pick a place for you
-            </p>
-          </li>
-          <li class="flex items-start gap-3">
-            <UIcon
-              name="i-heroicons-map-pin"
-              class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <p class="text-sm text-slate-200 leading-relaxed">
-              Or tap area cards to choose from specific malls
-            </p>
-          </li>
-          <li class="flex items-start gap-3">
-            <UIcon
-              name="i-heroicons-list-bullet"
-              class="w-5 h-5 text-orange-400 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <p class="text-sm text-slate-200 leading-relaxed">
-              Use My Places to hide places you don't like
-            </p>
-          </li>
-        </ul>
-        <button
-          class="mt-4 w-full min-h-[48px] bg-orange-500 hover:bg-orange-400 text-white font-semibold rounded-2xl transition-all active:scale-95"
-          @click="dismiss"
-        >
-          Got it
-        </button>
       </div>
     </Transition>
   </ClientOnly>

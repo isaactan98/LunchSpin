@@ -11,7 +11,7 @@
       </div>
     </header>
 
-    <!-- First-run onboarding hints -->
+    <!-- First-run onboarding hint (speech bubble above the CTA) -->
     <FirstRunHints />
 
     <!-- iOS install hint -->
@@ -49,7 +49,7 @@
     </div>
 
     <template v-else>
-      <!-- Hero CTA -->
+      <!-- Hero CTA — single stable "Spin" label, dynamic subtitle -->
       <div class="px-4">
         <button
           class="group w-full py-5 rounded-2xl font-bold text-xl text-white shadow-lg shadow-orange-500/20 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 transition-all active:scale-95 disabled:opacity-50 disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
@@ -57,19 +57,11 @@
           @click="onPrimaryCta"
         >
           <span class="inline-flex items-center gap-2">
-            <template v-if="store.hasAreaSelection">
-              <span>{{ areaCtaLabel }}</span>
-            </template>
-            <template v-else-if="!store.hasActiveFilters">
-              <span
-                class="text-2xl inline-block transition-transform duration-150 group-active:rotate-12"
-                aria-hidden="true"
-              >🎲</span>
-              <span>Surprise Me</span>
-            </template>
-            <template v-else>
-              <span>Pick one for me</span>
-            </template>
+            <span
+              class="text-2xl inline-block transition-transform duration-150 group-active:rotate-12"
+              aria-hidden="true"
+            >🎲</span>
+            <span>Spin</span>
           </span>
           <span class="block text-sm font-normal text-orange-100/90 mt-1">{{ ctaSubtitle }}</span>
         </button>
@@ -85,51 +77,116 @@
         <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
           {{ errorMessage }}
         </p>
+        <!-- Zero-match banner: ONE inline row with relax suggestion + clear-all link -->
         <Transition name="fade">
-          <!-- Prominent clear-filters when nothing matches active filters -->
           <div
             v-if="(totalAvailable === 0 || (store.hasAreaSelection && selectedAvailable === 0)) && store.hasActiveFilters"
             key="clear"
+            class="mt-3 rounded-xl bg-slate-900 border border-slate-800 px-4 py-3 text-sm text-slate-300"
           >
-            <button
-              class="mt-3 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
-              @click="store.clearFilters"
-            >
-              Clear all filters
-            </button>
-            <button
-              v-if="store.hasAreaSelection"
-              class="mt-2 w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-orange-300 hover:border-orange-500/60 transition-all active:scale-95"
-              @click="store.clearAreaSelection"
-            >
-              Clear area selection
-            </button>
-            <p
-              v-if="relaxSuggestion"
-              class="text-sm text-slate-400 mt-2 text-center"
-            >
-              Remove <span class="text-orange-300 font-medium">{{ relaxSuggestion.label }}</span>
-              to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}
-            </p>
-            <!-- Removable active-filter chips -->
-            <div class="mt-3 flex flex-wrap gap-2 justify-center">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span class="font-semibold text-white">No matches.</span>
               <button
-                v-for="chip in activeFilterChips"
-                :key="chip.key"
-                class="inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm bg-slate-800 border border-slate-700 text-slate-300 hover:border-red-500/40"
-                :aria-label="`Remove ${chip.label} filter`"
-                @click="chip.remove()"
+                v-if="relaxSuggestion"
+                type="button"
+                class="inline-flex items-center gap-1 px-2 py-1 -my-1 rounded-md text-orange-300 hover:text-orange-200 hover:bg-orange-500/10 transition-colors min-h-[36px]"
+                @click="onRelax"
               >
-                {{ chip.label }}
-                <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
+                Remove <span class="font-semibold">{{ relaxSuggestion.label }}</span>
+                <span class="text-slate-400 font-normal">to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}.</span>
+              </button>
+              <button
+                type="button"
+                class="ml-auto text-sm text-slate-400 hover:text-slate-200 underline-offset-2 hover:underline px-2 py-1 -my-1 min-h-[36px]"
+                @click="store.clearFilters"
+              >
+                Clear all
               </button>
             </div>
           </div>
         </Transition>
       </div>
 
-      <!-- Filter section (optional, collapsible) -->
+      <!-- Location grid (Limit to a mall?) -->
       <section class="px-4 mt-6">
+        <div class="flex items-start justify-between mb-3 gap-3">
+          <div>
+            <p class="text-base font-semibold text-white">Limit to a mall?</p>
+            <p class="text-sm text-slate-400">Tap to narrow the spin</p>
+          </div>
+          <p v-if="store.hasActiveFilters" class="text-sm text-slate-400 shrink-0 mt-1">
+            {{ totalAvailable }} {{ totalAvailable === 1 ? 'place' : 'places' }} match
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            v-for="area in sortedAreas"
+            :key="area.name"
+            class="relative flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
+            :class="
+              store.selectedAreas.includes(area.name)
+                ? 'ring-4 ring-orange-500 border-orange-500/60 bg-slate-800/90'
+                : ''
+            "
+            :disabled="area.count === 0"
+            :aria-pressed="store.selectedAreas.includes(area.name)"
+            @click="onToggleArea(area.name)"
+          >
+            <UIcon
+              v-if="store.selectedAreas.includes(area.name)"
+              name="i-heroicons-check"
+              class="absolute top-2 right-2 w-6 h-6 text-white bg-orange-500 rounded-full p-0.5"
+              aria-hidden="true"
+            />
+            <div class="flex items-center gap-1.5 text-orange-400">
+              <UIcon name="i-heroicons-map-pin" class="w-4 h-4" aria-hidden="true" />
+            </div>
+            <div
+              class="font-bold leading-tight"
+              :class="area.count === 0 ? 'text-slate-400' : 'text-white'"
+            >
+              {{ area.name }}
+            </div>
+            <div class="text-sm text-slate-400">
+              {{ area.count }} {{ area.count === 1 ? 'place' : 'places' }}
+            </div>
+            <div
+              v-if="area.count === 0 && store.hasActiveFilters"
+              class="text-xs text-slate-500"
+            >
+              Doesn't match filters
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Quick filters horizontal row -->
+      <div class="px-4 mt-4 flex gap-2 overflow-x-auto -mx-1 no-scrollbar">
+        <button
+          v-for="qf in quickFilters"
+          :key="qf.key"
+          type="button"
+          class="shrink-0 min-h-[48px] px-4 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+          :class="
+            qf.active
+              ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
+              : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+          "
+          :aria-pressed="qf.active"
+          @click="qf.toggle()"
+        >
+          <UIcon
+            v-if="qf.active"
+            name="i-heroicons-check"
+            class="w-4 h-4"
+            aria-hidden="true"
+          />
+          {{ qf.label }}
+        </button>
+      </div>
+
+      <!-- Refine (collapsed by default; the power-user panel) -->
+      <section class="px-4 mt-4 pb-6">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl px-4">
           <button
             class="w-full flex items-center justify-between py-3 text-base font-medium text-white"
@@ -143,7 +200,7 @@
                 class="w-5 h-5 text-orange-400"
                 aria-hidden="true"
               />
-              <span>Refine my pick</span>
+              <span>Picky? Refine your pick</span>
               <span
                 v-if="store.hasActiveFilters"
                 class="text-sm px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30"
@@ -362,59 +419,6 @@
           </div>
         </Transition>
       </section>
-
-      <!-- Location grid -->
-      <section class="px-4 mt-6 pb-6">
-        <div class="flex items-start justify-between mb-3 gap-3">
-          <p class="text-base text-slate-200">
-            Or pick specific places
-            <span class="text-slate-400">(tap as many as you like)</span>
-          </p>
-          <p v-if="store.hasActiveFilters" class="text-sm text-slate-400 shrink-0">
-            {{ totalAvailable }} {{ totalAvailable === 1 ? 'place' : 'places' }} match
-          </p>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <button
-            v-for="area in sortedAreas"
-            :key="area.name"
-            class="relative flex flex-col items-start gap-1 p-4 rounded-2xl bg-slate-800 border border-slate-700 hover:border-orange-500/60 transition-all active:scale-95 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:active:scale-100"
-            :class="
-              store.selectedAreas.includes(area.name)
-                ? 'ring-4 ring-orange-500 border-orange-500/60 bg-slate-800/90'
-                : ''
-            "
-            :disabled="area.count === 0"
-            :aria-pressed="store.selectedAreas.includes(area.name)"
-            @click="onToggleArea(area.name)"
-          >
-            <UIcon
-              v-if="store.selectedAreas.includes(area.name)"
-              name="i-heroicons-check"
-              class="absolute top-2 right-2 w-6 h-6 text-white bg-orange-500 rounded-full p-0.5"
-              aria-hidden="true"
-            />
-            <div class="flex items-center gap-1.5 text-orange-400">
-              <UIcon name="i-heroicons-map-pin" class="w-4 h-4" aria-hidden="true" />
-            </div>
-            <div
-              class="font-bold leading-tight"
-              :class="area.count === 0 ? 'text-slate-400' : 'text-white'"
-            >
-              {{ area.name }}
-            </div>
-            <div class="text-sm text-slate-400">
-              {{ area.count }} {{ area.count === 1 ? 'place' : 'places' }}
-            </div>
-            <div
-              v-if="area.count === 0 && store.hasActiveFilters"
-              class="text-xs text-slate-500"
-            >
-              Doesn't match filters
-            </div>
-          </button>
-        </div>
-      </section>
     </template>
   </div>
 </template>
@@ -436,6 +440,11 @@ watch(
     if (prev && !next) filtersOpen.value = false
   },
 )
+
+// Reset the session-only "include recents" flag on every mount of Home.
+onMounted(() => {
+  store.ignoreRecentThisSession = false
+})
 
 const meal = computed(() => store.currentMeal())
 const mealIcon = computed(() => (meal.value === 'lunch' ? '☀️' : '🌙'))
@@ -470,25 +479,6 @@ const payOptions = [
   { value: 'treat' as const, label: 'One pays' },
 ]
 
-const withLabelMap: Record<string, string> = {
-  solo: 'Solo',
-  date: 'Date',
-  colleague: 'Work lunch',
-  family: 'Family',
-}
-const serviceLabelMap: Record<string, string> = {
-  'dine-in': 'Dine-in',
-  'takeaway': 'Takeaway',
-}
-const orderingLabelMap: Record<string, string> = {
-  individual: 'Individual',
-  shared: 'Share dishes',
-}
-const payLabelMap: Record<string, string> = {
-  split: 'Everyone pays own',
-  treat: 'One pays',
-}
-
 const activeFilterCount = computed(() => {
   let n = store.priceFilters.length + store.cuisineFilters.length
   n += store.withFilters.length
@@ -501,65 +491,52 @@ const activeFilterCount = computed(() => {
 const totalAvailable = computed(() => store.availableNow.length)
 const noVisible = computed(() => store.loaded && store.visible.length === 0)
 
-interface FilterChip {
+interface QuickFilter {
   key: string
   label: string
-  remove: () => void
+  active: boolean
+  toggle: () => void
 }
 
-const activeFilterChips = computed<FilterChip[]>(() => {
-  const chips: FilterChip[] = []
-
-  for (const p of store.priceFilters.slice().sort((a, b) => a - b)) {
-    chips.push({
-      key: `price:${p}`,
-      label: '$'.repeat(p),
-      remove: () => store.togglePriceFilter(p),
-    })
-  }
-
-  for (const w of store.withFilters) {
-    chips.push({
-      key: `with:${w}`,
-      label: withLabelMap[w] ?? w,
-      remove: () => store.toggleWithFilter(w),
-    })
-  }
-
-  for (const s of store.serviceFilters) {
-    chips.push({
-      key: `service:${s}`,
-      label: serviceLabelMap[s] ?? s,
-      remove: () => store.toggleServiceFilter(s),
-    })
-  }
-
-  for (const o of store.orderingFilters) {
-    chips.push({
-      key: `ordering:${o}`,
-      label: orderingLabelMap[o] ?? o,
-      remove: () => store.toggleOrderingFilter(o),
-    })
-  }
-
-  for (const p of store.payFilters) {
-    chips.push({
-      key: `pay:${p}`,
-      label: payLabelMap[p] ?? p,
-      remove: () => store.togglePayFilter(p),
-    })
-  }
-
-  for (const c of store.cuisineFilters) {
-    chips.push({
-      key: `cuisine:${c}`,
-      label: c,
-      remove: () => store.toggleCuisineFilter(c),
-    })
-  }
-
-  return chips
-})
+// Quick filters row: most-used filters surfaced for one-tap access.
+const quickFilters = computed<QuickFilter[]>(() => [
+  {
+    key: 'price:1',
+    label: '$',
+    active: store.priceFilters.includes(1),
+    toggle: () => store.togglePriceFilter(1),
+  },
+  {
+    key: 'price:2',
+    label: '$$',
+    active: store.priceFilters.includes(2),
+    toggle: () => store.togglePriceFilter(2),
+  },
+  {
+    key: 'price:3',
+    label: '$$$',
+    active: store.priceFilters.includes(3),
+    toggle: () => store.togglePriceFilter(3),
+  },
+  {
+    key: 'with:solo',
+    label: 'Solo',
+    active: store.withFilters.includes('solo'),
+    toggle: () => store.toggleWithFilter('solo'),
+  },
+  {
+    key: 'with:date',
+    label: 'Date',
+    active: store.withFilters.includes('date'),
+    toggle: () => store.toggleWithFilter('date'),
+  },
+  {
+    key: 'with:colleague',
+    label: 'Work lunch',
+    active: store.withFilters.includes('colleague'),
+    toggle: () => store.toggleWithFilter('colleague'),
+  },
+])
 
 interface AreaEntry {
   name: string
@@ -569,6 +546,13 @@ interface AreaEntry {
 interface RelaxOption {
   label: string
   count: number
+  key:
+    | 'priceFilters'
+    | 'withFilters'
+    | 'serviceFilters'
+    | 'orderingFilters'
+    | 'payFilters'
+    | 'cuisineFilters'
 }
 
 const relaxSuggestion = computed<RelaxOption | null>(() => {
@@ -584,7 +568,7 @@ const relaxSuggestion = computed<RelaxOption | null>(() => {
     payFilters: store.payFilters,
   }
 
-  const dimensions: { key: keyof typeof original, label: string, active: boolean }[] = [
+  const dimensions: { key: RelaxOption['key'], label: string, active: boolean }[] = [
     { key: 'priceFilters', label: 'Price', active: store.priceFilters.length > 0 },
     { key: 'withFilters', label: 'With', active: store.withFilters.length > 0 },
     { key: 'serviceFilters', label: 'Service', active: store.serviceFilters.length > 0 },
@@ -602,7 +586,7 @@ const relaxSuggestion = computed<RelaxOption | null>(() => {
     // Restore
     ;(store as unknown as Record<string, unknown[]>)[dim.key] = original[dim.key]
     if (count > 0 && (best === null || count > best.count)) {
-      best = { label: dim.label, count }
+      best = { label: dim.label, count, key: dim.key }
     }
   }
   return best
@@ -627,19 +611,22 @@ const primaryDisabled = computed(() => {
   return totalAvailable.value === 0
 })
 
-const areaCtaLabel = computed(() => {
-  const sel = store.selectedAreas
-  if (sel.length === 0) return ''
-  if (sel.length === 1) return `Pick one from ${sel[0]}`
-  if (sel.length === 2) return `Pick one from ${sel[0]} & ${sel[1]}`
-  return `Pick one from ${sel[0]} & ${sel.length - 1} more`
+const ctaSubtitle = computed(() => {
+  if (store.hasAreaSelection) {
+    const sel = store.selectedAreas
+    if (sel.length === 1) return `From ${sel[0]}`
+    if (sel.length === 2) return `From ${sel[0]} & ${sel[1]}`
+    return `From ${sel[0]} + ${sel.length - 1} more`
+  }
+  if (store.hasActiveFilters) return 'Matching your filters'
+  return 'Any place, anywhere'
 })
 
-const ctaSubtitle = computed(() => {
-  if (store.hasAreaSelection) return 'Picks one place from these'
-  if (store.hasActiveFilters) return 'Picks one place that matches your filters'
-  return 'Picks one place at random'
-})
+function markOnboarded(): void {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('lunchspin:onboarded_v1', '1')
+  }
+}
 
 function onSurpriseMe(): void {
   errorMessage.value = ''
@@ -653,6 +640,9 @@ function onSurpriseMe(): void {
 }
 
 function onPrimaryCta(): void {
+  // Dismiss the first-run hint the first time the user taps Spin.
+  markOnboarded()
+
   if (!store.hasAreaSelection) {
     onSurpriseMe()
     return
@@ -673,5 +663,11 @@ function onPrimaryCta(): void {
 function onToggleArea(area: string): void {
   errorMessage.value = ''
   store.toggleAreaSelection(area)
+}
+
+function onRelax(): void {
+  const r = relaxSuggestion.value
+  if (!r) return
+  ;(store as unknown as Record<string, unknown[]>)[r.key] = []
 }
 </script>

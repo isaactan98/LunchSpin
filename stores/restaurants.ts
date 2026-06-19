@@ -97,6 +97,8 @@ interface RestaurantsState {
   lastPickSkippedRecent: number
   /** Session-only multi-area selection on the home grid (NOT persisted) */
   selectedAreas: string[]
+  /** Session-only flag — when true, pickRandom skips the recent-visit deprioritisation (NOT persisted) */
+  ignoreRecentThisSession: boolean
 }
 
 function detectMeal(): MealType {
@@ -122,6 +124,7 @@ export const useRestaurantsStore = defineStore('restaurants', {
     payFilters: [],
     lastPickSkippedRecent: 0,
     selectedAreas: [],
+    ignoreRecentThisSession: false,
   }),
 
   getters: {
@@ -461,8 +464,11 @@ export const useRestaurantsStore = defineStore('restaurants', {
       let working = pool.filter((r) => r.id !== this.lastPickedId)
       if (working.length === 0) working = pool
 
-      // Prefer pool members NOT recently visited; fall back if none remain
-      const recentIds = new Set(getRecentlyVisitedIds())
+      // Prefer pool members NOT recently visited; fall back if none remain.
+      // Session-only escape hatch: ignoreRecentThisSession bypasses this filter.
+      const recentIds = this.ignoreRecentThisSession
+        ? new Set<string>()
+        : new Set(getRecentlyVisitedIds())
       const notRecent = working.filter((r) => !recentIds.has(r.id))
       const choices = notRecent.length > 0 ? notRecent : working
       // Track how many recent visits were skipped (only meaningful when we actually skipped them)

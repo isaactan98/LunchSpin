@@ -13,8 +13,9 @@
       <slot />
     </main>
 
-    <!-- Bottom nav -->
+    <!-- Bottom nav (hidden on /result — focus screen with its own primary actions) -->
     <nav
+      v-if="route.path !== '/result'"
       class="sticky bottom-0 bg-slate-900 border-t border-slate-800 max-w-[430px] mx-auto w-full pb-[env(safe-area-inset-bottom)]"
     >
       <div class="flex">

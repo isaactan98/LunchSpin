@@ -13,21 +13,45 @@
       <h1 class="text-xl font-bold tracking-tight">{{ headerTitle }}</h1>
     </header>
 
-    <!-- Scope chip -->
+    <!-- Scope chip — clickable × clears scope when areas are present -->
     <Transition name="fade">
-      <div v-if="scopeChip" :key="scopeChip" class="px-4 mb-3">
+      <div v-if="scopeChipText" :key="scopeChipText" class="px-4 mb-3">
         <span
+          v-if="!hasAreaScope"
           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
         >
           <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
-          <span>{{ scopeChip }}</span>
+          <span>{{ scopeChipText }}</span>
+        </span>
+        <span
+          v-else
+          class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
+        >
+          <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
+          <span>{{ scopeChipText }}</span>
+          <button
+            type="button"
+            class="shrink-0 ml-1 p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors min-h-[28px] min-w-[28px] inline-flex items-center justify-center"
+            aria-label="Clear area scope"
+            @click="onClearScope"
+          >
+            <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
+          </button>
         </span>
       </div>
     </Transition>
 
-    <div v-if="metaLine" class="px-4 mb-3">
-      <span class="inline-block bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1 text-sm text-slate-300">
-        {{ metaLine }}
+    <div v-if="metaLine" class="px-4 mb-3 flex justify-center">
+      <span class="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-slate-800/60 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-300 text-center">
+        <span>{{ metaLine }}</span>
+        <button
+          v-if="canIncludeRecents"
+          type="button"
+          class="text-orange-300 hover:text-orange-200 underline-offset-2 hover:underline font-medium"
+          @click="onIncludeRecents"
+        >
+          Include them
+        </button>
       </span>
     </div>
 
@@ -73,75 +97,80 @@
           </span>
         </div>
 
-        <!-- Context badges: only show narrowing ones -->
-        <div v-if="contextBadges.length" class="mt-3 flex flex-wrap gap-2">
-          <span
-            v-for="b in contextBadges"
-            :key="b.label"
-            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium bg-slate-900 border border-slate-700 text-slate-300"
-          >
-            <UIcon :name="b.icon" class="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-            {{ b.label }}
-          </span>
-        </div>
-
-        <!-- Why this pick: chips matching each active filter dimension -->
-        <div v-if="matchedChips.length" class="mt-3 flex flex-wrap gap-2 items-center">
-          <span class="text-sm font-semibold text-slate-300 mr-1 self-center">Matched:</span>
-          <span
-            v-for="chip in matchedChips"
-            :key="chip"
-            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30"
-          >{{ chip }}</span>
-        </div>
-
-        <!-- Open days (simplified) -->
-        <p
-          v-if="openDaysLine"
-          class="mt-5 text-sm text-slate-400"
+        <!-- Details disclosure: badges, open-days, tags, notes -->
+        <details
+          v-if="hasDetails"
+          class="mt-4 group"
         >
-          {{ openDaysLine }}
-        </p>
-
-        <!-- Meal badges -->
-        <div class="mt-5 flex gap-2">
-          <span
-            v-if="restaurant.meal.includes('lunch')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
+          <summary
+            class="text-sm text-slate-400 cursor-pointer inline-flex items-center gap-1 list-none [&::-webkit-details-marker]:hidden select-none"
           >
-            <UIcon name="i-heroicons-sun" class="w-4 h-4 text-amber-400" aria-hidden="true" />
-            Lunch
-          </span>
-          <span
-            v-if="restaurant.meal.includes('dinner')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
-          >
-            <UIcon name="i-heroicons-moon" class="w-4 h-4 text-slate-300" aria-hidden="true" />
-            Dinner
-          </span>
-        </div>
+            Details
+            <UIcon
+              name="i-heroicons-chevron-down"
+              class="w-4 h-4 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div class="mt-3 space-y-4">
+            <!-- Context badges -->
+            <div v-if="contextBadges.length" class="flex flex-wrap gap-2">
+              <span
+                v-for="b in contextBadges"
+                :key="b.label"
+                class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium bg-slate-900 border border-slate-700 text-slate-300"
+              >
+                <UIcon :name="b.icon" class="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                {{ b.label }}
+              </span>
+            </div>
 
-        <!-- Tags -->
-        <div
-          v-if="restaurant.tags.length"
-          class="mt-5 flex flex-wrap gap-2"
-        >
-          <span
-            v-for="t in restaurant.tags"
-            :key="t"
-            class="px-2 py-0.5 rounded-md text-sm font-medium bg-slate-900 text-slate-400 border border-slate-700"
-          >
-            #{{ t }}
-          </span>
-        </div>
+            <!-- Open days -->
+            <p v-if="openDaysLine" class="text-sm text-slate-400">
+              {{ openDaysLine }}
+            </p>
 
-        <!-- Notes -->
-        <p
-          v-if="restaurant.notes"
-          class="mt-5 text-sm text-slate-400 italic leading-relaxed"
-        >
-          {{ restaurant.notes }}
-        </p>
+            <!-- Meal badges -->
+            <div class="flex gap-2">
+              <span
+                v-if="restaurant.meal.includes('lunch')"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
+              >
+                <UIcon name="i-heroicons-sun" class="w-4 h-4 text-amber-400" aria-hidden="true" />
+                Lunch
+              </span>
+              <span
+                v-if="restaurant.meal.includes('dinner')"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-900 border border-slate-700 text-slate-200"
+              >
+                <UIcon name="i-heroicons-moon" class="w-4 h-4 text-slate-300" aria-hidden="true" />
+                Dinner
+              </span>
+            </div>
+
+            <!-- Tags -->
+            <div
+              v-if="restaurant.tags.length"
+              class="flex flex-wrap gap-2"
+            >
+              <span
+                v-for="t in restaurant.tags"
+                :key="t"
+                class="px-2 py-0.5 rounded-md text-sm font-medium bg-slate-900 text-slate-400 border border-slate-700"
+              >
+                #{{ t }}
+              </span>
+            </div>
+
+            <!-- Notes -->
+            <p
+              v-if="restaurant.notes"
+              class="text-sm text-slate-400 italic leading-relaxed"
+            >
+              {{ restaurant.notes }}
+            </p>
+          </div>
+        </details>
         </div>
       </Transition>
 
@@ -165,8 +194,8 @@
       </div>
     </main>
 
-    <!-- Action buttons (in normal flow above bottom nav) -->
-    <div v-if="restaurant" class="px-4 pt-3 pb-4 space-y-2.5">
+    <!-- Two-action footer -->
+    <div v-if="restaurant" class="px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2.5">
       <button
         class="w-full py-4 rounded-2xl font-bold text-lg text-white shadow-lg shadow-orange-500/30 bg-orange-500 hover:bg-orange-400 transition-all active:scale-95"
         @click="onLetsGo"
@@ -183,14 +212,7 @@
           :class="rerolling && 'rotate-180'"
           aria-hidden="true"
         />
-        Try a different place
-      </button>
-      <button
-        v-if="hasAreaScope"
-        class="w-full py-3 rounded-2xl text-base font-medium text-slate-300 bg-transparent border border-slate-700 active:scale-95"
-        @click="onTryAnywhere"
-      >
-        Pick from anywhere in Singapore
+        Spin again
       </button>
     </div>
   </div>
@@ -244,13 +266,14 @@ const areaScopeText = computed(() => {
   return areas.join(', ')
 })
 
-const scopeChip = computed(() => {
+// Single text string for the chip body. The × is rendered separately.
+const scopeChipText = computed(() => {
   const filterText = restaurantsStore.filterSummary
   const areas = areaScopeText.value
   if (!filterText && !areas) return ''
   if (filterText && areas) return `${filterText} · from ${areas}`
   if (filterText) return `${filterText} + anywhere`
-  return `from ${areas}`
+  return `From ${areas}`
 })
 
 interface ContextBadge {
@@ -307,80 +330,25 @@ const priceLabel = computed(() => {
   return '$'.repeat(restaurant.value.price_range)
 })
 
-const WITH_LABEL: Record<string, string> = {
-  solo: 'Solo',
-  date: 'Date',
-  colleague: 'Work lunch',
-  family: 'Family',
-}
-const SERVICE_LABEL: Record<string, string> = {
-  'dine-in': 'Dine-in',
-  'takeaway': 'Takeaway',
-}
-
-const matchedChips = computed<string[]>(() => {
-  const r = restaurant.value
-  if (!r) return []
-  const chips: string[] = []
-
-  if (restaurantsStore.priceFilters.length > 0
-    && restaurantsStore.priceFilters.includes(r.price_range)) {
-    chips.push('$'.repeat(r.price_range))
-  }
-
-  if (restaurantsStore.withFilters.length > 0) {
-    for (const w of restaurantsStore.withFilters) {
-      if (r.suitable_for.includes(w)) chips.push(WITH_LABEL[w] ?? w)
-    }
-  }
-
-  if (restaurantsStore.serviceFilters.length > 0) {
-    for (const s of restaurantsStore.serviceFilters) {
-      if (r.service.includes(s)) chips.push(SERVICE_LABEL[s] ?? s)
-    }
-  }
-
-  if (restaurantsStore.orderingFilters.length > 0) {
-    if (r.ordering_style === 'both') {
-      // Flexible — surface whichever filter the user picked
-      for (const o of restaurantsStore.orderingFilters) {
-        chips.push(o === 'individual' ? 'Individual (flexible)' : 'Share dishes (flexible)')
-      }
-    } else if (restaurantsStore.orderingFilters.includes(r.ordering_style)) {
-      chips.push(r.ordering_style === 'individual' ? 'Individual' : 'Share dishes')
-    }
-  }
-
-  if (restaurantsStore.payFilters.length > 0) {
-    if (r.pay_style === 'either') {
-      for (const p of restaurantsStore.payFilters) {
-        chips.push(p === 'split' ? 'Everyone pays own (flexible)' : 'One pays (flexible)')
-      }
-    } else if (restaurantsStore.payFilters.includes(r.pay_style)) {
-      chips.push(r.pay_style === 'split' ? 'Everyone pays own' : 'One pays')
-    }
-  }
-
-  if (restaurantsStore.cuisineFilters.length > 0) {
-    for (const c of r.cuisine) {
-      if (restaurantsStore.cuisineFilters.includes(c)) chips.push(c)
-    }
-  }
-
-  return chips
-})
-
 const onlyOneMatch = computed(() => {
   if (!restaurantsStore.hasActiveFilters) return false
   return restaurantsStore.availableNow.length === 1
 })
 
+const skippedRecentCount = computed(() => restaurantsStore.lastPickSkippedRecent)
+
+// Show "Include them" only when we actually skipped recents this pick AND
+// the user hasn't already opted in.
+const canIncludeRecents = computed(
+  () => skippedRecentCount.value > 0 && !restaurantsStore.ignoreRecentThisSession,
+)
+
 const metaLine = computed<string | null>(() => {
   // Prefer the more-actionable single-match message when both signals fire
   if (onlyOneMatch.value) return 'Only 1 place matches your filters'
-  const skipped = restaurantsStore.lastPickSkippedRecent
+  const skipped = skippedRecentCount.value
   if (skipped > 0) {
-    return `Avoiding ${skipped} place${skipped !== 1 ? 's' : ''} you visited recently`
+    return `Skipped ${skipped} place${skipped !== 1 ? 's' : ''} you've been to this week`
   }
   return null
 })
@@ -431,6 +399,18 @@ const lastVisitedLabel = computed(() => {
   return `Last visited ${diff} days ago`
 })
 
+const hasDetails = computed(() => {
+  const r = restaurant.value
+  if (!r) return false
+  return (
+    contextBadges.value.length > 0
+    || openDaysLine.value.length > 0
+    || r.meal.length > 0
+    || r.tags.length > 0
+    || !!r.notes
+  )
+})
+
 function refreshLastVisited(): void {
   if (!restaurant.value) {
     lastVisitedDate.value = null
@@ -457,7 +437,7 @@ function onLetsGo(): void {
   }, 1800)
 }
 
-function onTryAnywhere(): void {
+function onClearScope(): void {
   inlineMessage.value = ''
   inlineMessageTone.value = 'error'
   rerolling.value = true
@@ -466,8 +446,27 @@ function onTryAnywhere(): void {
     inlineMessage.value = 'No places match your filters'
   }
   refreshLastVisited()
-  // Drop the ?area= so subsequent re-rolls also widen scope
+  // Drop the ?areas= so subsequent re-rolls also widen scope
   router.replace({ path: '/result' })
+  setTimeout(() => {
+    rerolling.value = false
+  }, 300)
+}
+
+function onIncludeRecents(): void {
+  restaurantsStore.ignoreRecentThisSession = true
+  // Re-pick immediately so the user sees the effect
+  inlineMessage.value = ''
+  inlineMessageTone.value = 'error'
+  rerolling.value = true
+  const areas = selectedAreasFromRoute.value
+  const pick = areas.length > 0
+    ? restaurantsStore.pickRandom(areas)
+    : restaurantsStore.pickRandom()
+  if (!pick) {
+    inlineMessage.value = 'No places match your filters'
+  }
+  refreshLastVisited()
   setTimeout(() => {
     rerolling.value = false
   }, 300)
