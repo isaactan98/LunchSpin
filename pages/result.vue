@@ -13,37 +13,40 @@
       <h1 class="text-xl font-bold tracking-tight">{{ headerTitle }}</h1>
     </header>
 
-    <!-- Scope chip — clickable × clears scope when areas are present -->
-    <Transition name="fade">
-      <div v-if="scopeChipText" :key="scopeChipText" class="px-4 mb-3">
-        <span
-          v-if="!hasAreaScope"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
+    <!-- Scope chip — up to two pills: area (tappable ×) + filters (static) -->
+    <div v-if="hasAreaScope || hasFiltersScope" class="px-4 mb-3 flex flex-wrap gap-2">
+      <span
+        v-if="hasAreaScope"
+        class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
+      >
+        <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
+        From {{ areaScopeLabel }}
+        <button
+          type="button"
+          class="shrink-0 ml-1 p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-700/60 min-h-[28px] min-w-[28px] inline-flex items-center justify-center"
+          aria-label="Clear area scope"
+          @click="onClearScope"
         >
-          <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
-          <span>{{ scopeChipText }}</span>
-        </span>
-        <span
-          v-else
-          class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-300"
-        >
-          <UIcon name="i-heroicons-map-pin" class="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
-          <span>{{ scopeChipText }}</span>
-          <button
-            type="button"
-            class="shrink-0 ml-1 p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors min-h-[28px] min-w-[28px] inline-flex items-center justify-center"
-            aria-label="Clear area scope"
-            @click="onClearScope"
-          >
-            <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-        </span>
-      </div>
-    </Transition>
+          <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
+        </button>
+      </span>
+      <span
+        v-if="hasFiltersScope"
+        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-sm text-slate-400"
+      >
+        <UIcon name="i-heroicons-adjustments-horizontal" class="w-3.5 h-3.5" aria-hidden="true" />
+        Filtered: {{ filterScopeLabel }}
+      </span>
+    </div>
 
-    <div v-if="metaLine" class="px-4 mb-3 flex justify-center">
+    <div v-if="onlyOneMatch" class="px-4 mb-2 flex justify-center">
+      <span class="inline-block bg-slate-800/60 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-300">
+        Only 1 place matches your filters
+      </span>
+    </div>
+    <div v-if="skippedRecentCount > 0" class="px-4 mb-3 flex justify-center">
       <span class="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-slate-800/60 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-300 text-center">
-        <span>{{ metaLine }}</span>
+        <span>Skipped {{ skippedRecentCount }} you've been to this week</span>
         <button
           v-if="canIncludeRecents"
           type="button"
@@ -259,22 +262,15 @@ const headerTitle = computed(() => {
   return m === 'dinner' ? "Tonight's pick" : 'Lunch pick'
 })
 
-const areaScopeText = computed(() => {
+const areaScopeLabel = computed(() => {
   const areas = selectedAreasFromRoute.value
   if (areas.length === 0) return ''
   if (areas.length === 1) return areas[0]
   return areas.join(', ')
 })
 
-// Single text string for the chip body. The × is rendered separately.
-const scopeChipText = computed(() => {
-  const filterText = restaurantsStore.filterSummary
-  const areas = areaScopeText.value
-  if (!filterText && !areas) return ''
-  if (filterText && areas) return `${filterText} · from ${areas}`
-  if (filterText) return `${filterText} + anywhere`
-  return `From ${areas}`
-})
+const hasFiltersScope = computed(() => restaurantsStore.hasActiveFilters)
+const filterScopeLabel = computed(() => restaurantsStore.filterSummary)
 
 interface ContextBadge {
   label: string
@@ -342,16 +338,6 @@ const skippedRecentCount = computed(() => restaurantsStore.lastPickSkippedRecent
 const canIncludeRecents = computed(
   () => skippedRecentCount.value > 0 && !restaurantsStore.ignoreRecentThisSession,
 )
-
-const metaLine = computed<string | null>(() => {
-  // Prefer the more-actionable single-match message when both signals fire
-  if (onlyOneMatch.value) return 'Only 1 place matches your filters'
-  const skipped = skippedRecentCount.value
-  if (skipped > 0) {
-    return `Skipped ${skipped} place${skipped !== 1 ? 's' : ''} you've been to this week`
-  }
-  return null
-})
 
 const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 const DAY_LABELS: Record<typeof DAY_KEYS[number], string> = {

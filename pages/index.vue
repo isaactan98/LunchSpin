@@ -11,11 +11,11 @@
       </div>
     </header>
 
-    <!-- First-run onboarding hint (speech bubble above the CTA) -->
-    <FirstRunHints />
-
     <!-- iOS install hint -->
     <IosInstallHint />
+
+    <!-- First-run onboarding hint (speech bubble above the CTA) -->
+    <FirstRunHints v-if="store.loaded && !noVisible" />
 
     <!-- Skeleton placeholder while store is loading -->
     <div
@@ -65,58 +65,57 @@
           </span>
           <span class="block text-sm font-normal text-orange-100/90 mt-1">{{ ctaSubtitle }}</span>
         </button>
-        <div v-if="store.hasAreaSelection" class="mt-2 flex justify-center">
-          <button
-            type="button"
-            class="text-sm text-slate-300 underline-offset-2 hover:underline px-3 py-2 min-h-[44px]"
-            @click="store.clearAreaSelection"
-          >
-            Clear {{ store.selectedAreas.length }} selected
-          </button>
+        <!-- Unified scope strip: areas + filter chips, one Clear all -->
+        <div
+          v-if="store.hasAreaSelection || store.hasActiveFilters"
+          class="mt-3 rounded-2xl bg-slate-900 border border-slate-800 px-3 py-2"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-slate-400 mr-1">Spinning in:</span>
+            <button
+              v-for="chip in scopeChips"
+              :key="chip.key"
+              type="button"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-slate-800 border border-slate-700 text-slate-300 hover:border-orange-500/60 min-h-[36px]"
+              :aria-label="`Remove ${chip.label}`"
+              @click="chip.remove()"
+            >
+              {{ chip.label }}
+              <UIcon name="i-heroicons-x-mark" class="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              class="ml-auto text-sm text-slate-400 hover:text-slate-200 underline-offset-2 hover:underline px-2 py-1 min-h-[36px]"
+              @click="store.clearAllScope"
+            >
+              Clear all
+            </button>
+          </div>
+          <p v-if="zeroMatchHint" class="mt-2 text-sm text-slate-400">
+            <span class="font-semibold text-white">No matches.</span>
+            <button
+              v-if="relaxSuggestion"
+              type="button"
+              class="text-orange-300 hover:text-orange-200 underline-offset-2 hover:underline"
+              @click="onRelax"
+            >
+              Remove {{ relaxSuggestion.label }} to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}.
+            </button>
+          </p>
         </div>
-        <p v-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
+        <p v-if="primaryDisabled && disabledReason" class="mt-3 text-center text-sm text-rose-300">
+          {{ disabledReason }}
+        </p>
+        <p v-else-if="errorMessage" class="mt-3 text-center text-sm text-rose-300">
           {{ errorMessage }}
         </p>
-        <!-- Zero-match banner: ONE inline row with relax suggestion + clear-all link -->
-        <Transition name="fade">
-          <div
-            v-if="(totalAvailable === 0 || (store.hasAreaSelection && selectedAvailable === 0)) && store.hasActiveFilters"
-            key="clear"
-            class="mt-3 rounded-xl bg-slate-900 border border-slate-800 px-4 py-3 text-sm text-slate-300"
-          >
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span class="font-semibold text-white">No matches.</span>
-              <button
-                v-if="relaxSuggestion"
-                type="button"
-                class="inline-flex items-center gap-1 px-2 py-1 -my-1 rounded-md text-orange-300 hover:text-orange-200 hover:bg-orange-500/10 transition-colors min-h-[36px]"
-                @click="onRelax"
-              >
-                Remove <span class="font-semibold">{{ relaxSuggestion.label }}</span>
-                <span class="text-slate-400 font-normal">to see {{ relaxSuggestion.count }} place{{ relaxSuggestion.count !== 1 ? 's' : '' }}.</span>
-              </button>
-              <button
-                type="button"
-                class="ml-auto text-sm text-slate-400 hover:text-slate-200 underline-offset-2 hover:underline px-2 py-1 -my-1 min-h-[36px]"
-                @click="store.clearFilters"
-              >
-                Clear all
-              </button>
-            </div>
-          </div>
-        </Transition>
       </div>
 
       <!-- Location grid (Limit to a mall?) -->
       <section class="px-4 mt-6">
-        <div class="flex items-start justify-between mb-3 gap-3">
-          <div>
-            <p class="text-base font-semibold text-white">Limit to a mall?</p>
-            <p class="text-sm text-slate-400">Tap to narrow the spin</p>
-          </div>
-          <p v-if="store.hasActiveFilters" class="text-sm text-slate-400 shrink-0 mt-1">
-            {{ totalAvailable }} {{ totalAvailable === 1 ? 'place' : 'places' }} match
-          </p>
+        <div class="mb-3">
+          <p class="text-base font-semibold text-white">Limit to a mall?</p>
+          <p class="text-sm text-slate-400">Tap to narrow the spin</p>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <button
@@ -161,28 +160,31 @@
       </section>
 
       <!-- Quick filters horizontal row -->
-      <div class="px-4 mt-4 flex gap-2 overflow-x-auto -mx-1 no-scrollbar">
-        <button
-          v-for="qf in quickFilters"
-          :key="qf.key"
-          type="button"
-          class="shrink-0 min-h-[48px] px-4 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
-          :class="
-            qf.active
-              ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
-              : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-          "
-          :aria-pressed="qf.active"
-          @click="qf.toggle()"
-        >
-          <UIcon
-            v-if="qf.active"
-            name="i-heroicons-check"
-            class="w-4 h-4"
-            aria-hidden="true"
-          />
-          {{ qf.label }}
-        </button>
+      <div class="relative">
+        <div class="px-4 mt-4 flex gap-2 overflow-x-auto -mx-1 no-scrollbar">
+          <button
+            v-for="qf in quickFilters"
+            :key="qf.key"
+            type="button"
+            class="shrink-0 min-h-[48px] px-4 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+            :class="
+              qf.active
+                ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
+                : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+            "
+            :aria-pressed="qf.active"
+            @click="qf.toggle()"
+          >
+            <UIcon
+              v-if="qf.active"
+              name="i-heroicons-check"
+              class="w-4 h-4"
+              aria-hidden="true"
+            />
+            {{ qf.label }}
+          </button>
+        </div>
+        <div class="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-slate-950" aria-hidden="true" />
       </div>
 
       <!-- Refine (collapsed by default; the power-user panel) -->
@@ -229,62 +231,7 @@
 
         <Transition name="collapse">
           <div v-if="filtersOpen" id="refine-panel" class="mt-3 space-y-4 pb-2">
-          <!-- Price -->
-          <div>
-            <h3 class="text-sm font-semibold text-slate-200 mb-2">Price</h3>
-            <div class="flex gap-3">
-              <button
-                v-for="opt in priceOptions"
-                :key="opt.value"
-                class="flex-1 min-h-[48px] py-3 rounded-xl text-sm font-medium border transition-all active:scale-95"
-                :class="
-                  store.priceFilters.includes(opt.value)
-                    ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                "
-                :aria-pressed="store.priceFilters.includes(opt.value)"
-                @click="store.togglePriceFilter(opt.value)"
-              >
-                <div class="font-bold inline-flex items-center justify-center gap-1">
-                  <UIcon
-                    v-if="store.priceFilters.includes(opt.value)"
-                    name="i-heroicons-check"
-                    class="w-4 h-4"
-                    aria-hidden="true"
-                  />
-                  <span>{{ opt.symbol }}</span>
-                </div>
-                <div class="text-xs opacity-75">{{ opt.label }}</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- With -->
-          <div>
-            <h3 class="text-sm font-semibold text-slate-200 mb-2">With</h3>
-            <div class="flex flex-wrap gap-3">
-              <button
-                v-for="opt in withOptions"
-                :key="opt.value"
-                class="min-h-[48px] px-4 py-2.5 rounded-full text-sm font-medium border transition-all active:scale-95 inline-flex items-center"
-                :class="
-                  store.withFilters.includes(opt.value)
-                    ? 'bg-orange-600 border-orange-500 text-white shadow-sm shadow-orange-500/30'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                "
-                :aria-pressed="store.withFilters.includes(opt.value)"
-                @click="store.toggleWithFilter(opt.value)"
-              >
-                <UIcon
-                  v-if="store.withFilters.includes(opt.value)"
-                  name="i-heroicons-check"
-                  class="w-4 h-4 mr-1"
-                  aria-hidden="true"
-                />
-                {{ opt.label }}
-              </button>
-            </div>
-          </div>
+          <p class="text-xs text-slate-400 -mt-1 pb-1">Price lives in Quick filters above.</p>
 
           <!-- Service / Ordering / Payment (compact 3-col grid; 2-col on narrow screens) -->
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -451,19 +398,6 @@ const mealIcon = computed(() => (meal.value === 'lunch' ? '☀️' : '🌙'))
 
 const cuisines = computed(() => store.allCuisines)
 
-const priceOptions = [
-  { value: 1 as const, symbol: '$', label: 'Cheap' },
-  { value: 2 as const, symbol: '$$', label: 'Mid' },
-  { value: 3 as const, symbol: '$$$', label: 'Pricey' },
-]
-
-const withOptions = [
-  { value: 'solo' as const, label: 'Solo' },
-  { value: 'date' as const, label: 'Date' },
-  { value: 'colleague' as const, label: 'Work lunch' },
-  { value: 'family' as const, label: 'Family' },
-]
-
 const serviceOptions = [
   { value: 'dine-in' as const, label: 'Dine-in' },
   { value: 'takeaway' as const, label: 'Takeaway' },
@@ -536,7 +470,100 @@ const quickFilters = computed<QuickFilter[]>(() => [
     active: store.withFilters.includes('colleague'),
     toggle: () => store.toggleWithFilter('colleague'),
   },
+  {
+    key: 'with:family',
+    label: 'Family',
+    active: store.withFilters.includes('family'),
+    toggle: () => store.toggleWithFilter('family'),
+  },
 ])
+
+interface ScopeChip {
+  key: string
+  label: string
+  remove: () => void
+}
+
+// Unified scope chips: areas first, then each filter dimension.
+const scopeChips = computed<ScopeChip[]>(() => {
+  const chips: ScopeChip[] = []
+
+  for (const area of store.selectedAreas) {
+    chips.push({
+      key: `area:${area}`,
+      label: area,
+      remove: () => store.toggleAreaSelection(area),
+    })
+  }
+
+  for (const p of store.priceFilters.slice().sort((a, b) => a - b)) {
+    chips.push({
+      key: `price:${p}`,
+      label: '$'.repeat(p),
+      remove: () => store.togglePriceFilter(p),
+    })
+  }
+
+  const withLabels: Record<string, string> = {
+    solo: 'Solo',
+    date: 'Date',
+    colleague: 'Work lunch',
+    family: 'Family',
+  }
+  for (const w of store.withFilters) {
+    chips.push({
+      key: `with:${w}`,
+      label: withLabels[w] ?? w,
+      remove: () => store.toggleWithFilter(w),
+    })
+  }
+
+  const serviceLabels: Record<string, string> = {
+    'dine-in': 'Dine-in',
+    'takeaway': 'Takeaway',
+  }
+  for (const s of store.serviceFilters) {
+    chips.push({
+      key: `service:${s}`,
+      label: serviceLabels[s] ?? s,
+      remove: () => store.toggleServiceFilter(s),
+    })
+  }
+
+  const orderingLabels: Record<string, string> = {
+    individual: 'Individual',
+    shared: 'Share dishes',
+  }
+  for (const o of store.orderingFilters) {
+    chips.push({
+      key: `ordering:${o}`,
+      label: orderingLabels[o] ?? o,
+      remove: () => store.toggleOrderingFilter(o),
+    })
+  }
+
+  const payLabels: Record<string, string> = {
+    split: 'Everyone pays own',
+    treat: 'One pays',
+  }
+  for (const p of store.payFilters) {
+    chips.push({
+      key: `pay:${p}`,
+      label: payLabels[p] ?? p,
+      remove: () => store.togglePayFilter(p),
+    })
+  }
+
+  for (const c of store.cuisineFilters) {
+    chips.push({
+      key: `cuisine:${c}`,
+      label: c,
+      remove: () => store.toggleCuisineFilter(c),
+    })
+  }
+
+  return chips
+})
 
 interface AreaEntry {
   name: string
@@ -621,6 +648,23 @@ const ctaSubtitle = computed(() => {
   if (store.hasActiveFilters) return 'Matching your filters'
   return 'Any place, anywhere'
 })
+
+const disabledReason = computed(() => {
+  if (!store.loaded) return ''
+  if (noVisible.value) return 'All places are hidden — open My Places.'
+  if (store.hasAreaSelection && selectedAvailable.value === 0)
+    return store.hasActiveFilters
+      ? 'Nothing in selected areas matches your filters.'
+      : `Nothing open in ${store.selectedAreas[0]} for ${meal.value}.`
+  if (totalAvailable.value === 0) return 'No places match your filters.'
+  return ''
+})
+
+const zeroMatchHint = computed(
+  () =>
+    (totalAvailable.value === 0 || (store.hasAreaSelection && selectedAvailable.value === 0))
+    && store.hasActiveFilters,
+)
 
 function markOnboarded(): void {
   if (typeof localStorage !== 'undefined') {

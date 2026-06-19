@@ -434,6 +434,12 @@ export const useRestaurantsStore = defineStore('restaurants', {
       this.selectedAreas = []
     },
 
+    clearAllScope() {
+      this.clearFilters()
+      this.clearAreaSelection()
+      this.ignoreRecentThisSession = false
+    },
+
     /**
      * Pick a random restaurant. Scope can be:
      *   - undefined / empty array → no area filter
